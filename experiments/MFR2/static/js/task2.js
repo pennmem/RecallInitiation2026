@@ -7,6 +7,9 @@ function runExperiment() {
 
     var workerId = uniqueId.split(':')[0];
 
+    var initiation_conditions = ["free", "primacy", "recency"];
+    var initiation_condition = jsPsych.randomization.sampleWithoutReplacement(initiation_conditions, 1)[0];
+
     var timeline = [];
 
     //condition randomizer, autopopulates rest of experiment (list_length, presentation_rate)
@@ -99,7 +102,7 @@ function runExperiment() {
         response_ends_trial: false,
         stimulus: "<p>The preceding page was designed to screen participants who are not carefully paying attention.</p> \
         <p>Please do not reload the page.</p> \
-        <p>Based on your responses to these questions, we ask that you return this HIT to MTurk at this time.</p>"
+        <p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>"
     };
 
     // check if correctly responded to message
@@ -161,7 +164,7 @@ function runExperiment() {
             <p>The next page will give you a refresher on how the experiment will run.</p>',
             '<p>In this experiment you will be presented with a list of words, which you will hear one after another.</p> \
             <p>Then, there will be a 90 second recall period where you will be asked to recall the words from the list \
-            by typing them into the recall box in any order.</p><p>This process of hearing a list of words and \
+            by typing them into the recall box. You may be asked to recall words in a particular order.</p><p>This process of hearing a list of words and \
             then recalling those words will repeat for 12 lists, all of different words.</p><p>Remember to recall words from \
             the immediately preceeding list during each recall period.</p>',
             '<p>Please do NOT write down words, as this experiment is trying to study human memory!</p> \
@@ -293,20 +296,31 @@ function runExperiment() {
     // attention check recall
     var att_correct = 0;
     var att_trials = 0;
+    var started_correctly = false;  // flag to check if participant got first recall correct (to prevent bots from just typing random words until they get 3 correct)
+    var att_first_recall = false;
     var att_recall = {
         type: 'survey-text',
         questions: [
-            {prompt: "<p>Recall the words you just heard in any order.</p> \
-            <p> Press the Enter key or the Continue button to submit each word.</p>"}
-        ],
+            {prompt: "<p>Recall the words you just heard. You MUST begin recall with a word from the beginning of the list.</p> \
+                <p> Press the Enter key or the Continue button to submit each word.</p>"}
+            ],
         trial_duration: 10000,       // 10 seconds per recall -- not working
         post_trial_gap: 1,
         data: {type: 'ATT_REC'},
         on_finish: function(data){
             var att_recalled = data.response.Q0.toString().toLowerCase();
+            var serial_pos = att_list.indexOf(att_recalled) + 1;
             if (att_list.indexOf(att_recalled) > -1){
                 att_correct++;
             };
+            if (!first_recall_checked){
+                first_recall_checked = true;
+                if (serial_pos >= 1 && serial_pos <= 3){
+                    started_correctly = true;
+                } else {
+                    started_correctly = false;
+                }
+            }
             att_trials++;
         }
     };
@@ -344,13 +358,13 @@ function runExperiment() {
         response_ends_trial: false,
         stimulus: "<p>The preceding questions were designed to screen participants who are not carefully following the instructions of our study.</p> \
         <p>Please do not reload the page.</p> \
-        <p>Based on your responses to these questions, we ask that you return this HIT to MTurk at this time.</p>"
+        <p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>"
     };
 
     var pass_node = {
         timeline: [pass_att],
         conditional_function: function(){
-            if (att_correct >= 3){
+            if (att_correct >= 3 && started_correctly){
                 return true;
             } else {
                 return false;
@@ -374,7 +388,7 @@ function runExperiment() {
     var fail_node = {
         timeline: [fail_att],
         conditional_function: function(){
-            if (att_correct < 2){
+            if (att_correct < 2 || !started_correctly){
                 return true;
             } else {
                 return false;
@@ -456,10 +470,14 @@ function runExperiment() {
     //recall instructions appear before first recall period
     var recall_instructions = {
         type: "html-button-response",
-        stimulus: "<p>You will now have 90 seconds to recall the \
-            words you just were presented in any order.</p><p>Type into the box \
-            and press the Enter key for each word.</p><p>Press the Start Recall\
-            button to begin recall.</p>",
+        stimulus: function() {
+            if (initiation_condition == "primacy"){
+                return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the beginning of the list.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+            } if (initiation_condition == "recency"){
+                return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the end of the list.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+            } 
+            return "<p>You will now have 90 seconds to recall the words in any order</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+        },
         choices: ["Start Recall"],
         post_trial_gap: 500
     };

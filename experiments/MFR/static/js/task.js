@@ -6,6 +6,9 @@ function runExperiment() {
     var mycounterbalance = counterbalance;
 
     var workerId = uniqueId.split(':')[0];
+
+    var initiation_conditions = ["free", "primacy", "recency"];
+    var initiation_condition = jsPsych.randomization.sampleWithoutReplacement(initiation_conditions, 1)[0];
     
     var timeline = [];
 
@@ -84,7 +87,7 @@ function runExperiment() {
         response_ends_trial: false,
         stimulus: "<p>The preceding page was designed to screen participants who are not carefully paying attention.</p> \
         <p>Please do not reload the page.</p> \
-        <p>Based on your responses to these questions, we ask that you return this HIT to MTurk at this time.</p>"
+        <p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>"
     };
 
     // check if correctly responded to message
@@ -148,7 +151,7 @@ function runExperiment() {
             '<p>In this experiment you will be presented \
             with a list of words, which you will hear one after another.</p> \
             <p>Then, there will be a 90 second recall period where you will be asked to recall the words from \
-            the list by typing them into the recall box in any order.</p>',
+            the list by typing them into the recall box. You may be asked to recall them in a particular order.</p>',
             '<p>This process of hearing a list of words and then recalling those words \
             will repeat for a number of lists, all of different words.</p> \
             <p>Remember to recall words from the immediately preceding list during each recall period.</p>',
@@ -281,10 +284,12 @@ function runExperiment() {
     // attention check recall
     var att_correct = 0;
     var att_trials = 0;
+    var first_recall_checked = false;
+    var started_correctly = false;
     var att_recall = {
         type: 'survey-text',
         questions: [
-            {prompt: "<p>Recall the words you just heard in any order.</p> \
+            {prompt: "<p>Recall the words you just heard. You MUST begin recall with a word from the beginning of the list.</p> \
             <p> Press the Enter key or the Continue button to submit each word.</p>"}
         ],
         trial_duration: 10000,       // 10 seconds per recall -- not working
@@ -292,9 +297,18 @@ function runExperiment() {
         data: {type: 'ATT_REC'},
         on_finish: function(data){
             var att_recalled = data.response.Q0.toString().toLowerCase();
+            var serial_pos = att_list.indexOf(att_recalled) + 1;
             if (att_list.indexOf(att_recalled) > -1){
                 att_correct++;
             };
+            if (!first_recall_checked){
+                first_recall_checked = true;
+                if (serial_pos >= 1 && serial_pos <= 3){
+                    started_correctly = true;
+                } else {
+                    started_correctly = false;
+                }
+            }
             att_trials++;
         }
     };
@@ -332,13 +346,13 @@ function runExperiment() {
         response_ends_trial: false,
         stimulus: "<p>The preceding questions were designed to screen participants who are not carefully following the instructions of our study.</p> \
         <p>Please do not reload the page.</p> \
-        <p>Based on your responses to these questions, we ask that you return this HIT to MTurk at this time.</p>"
+        <p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>"
     };
 
     var pass_node = {
         timeline: [pass_att],
         conditional_function: function(){
-            if (att_correct >= 3){
+            if (att_correct >= 3 && started_correctly) {
                 return true;
             } else {
                 return false;
@@ -362,7 +376,7 @@ function runExperiment() {
     var fail_node = {
         timeline: [fail_att],
         conditional_function: function(){
-            if (att_correct < 2){
+            if (att_correct < 2 || !started_correctly){
                 return true;
             } else {
                 return false;
@@ -444,10 +458,14 @@ function runExperiment() {
     //recall instructions appear before first recall period
     var recall_instructions = {
         type: "html-button-response",
-        stimulus: "<p>You will now have 90 seconds to recall the \
-            words you just were presented in any order.</p><p>Type into the box \
-            and press the Enter key for each word.</p><p>Press the Start Recall\
-            button to begin recall.</p>",
+        stimulus: function() {
+            if (initiation_condition == "primacy"){
+                return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the beginning of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+            } if (initiation_condition == "recency"){
+                return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the end of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+            } 
+            return "<p>You will now have 90 seconds to recall the words in any order</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+        },
         choices: ["Start Recall"],
         post_trial_gap: 500
     };
@@ -645,7 +663,7 @@ function runExperiment() {
             '/static/audio/wordpool/WIDOW.wav', '/static/audio/wordpool/WIFE.wav', '/static/audio/wordpool/WINDOW.wav', '/static/audio/wordpool/WITNESS.wav', '/static/audio/wordpool/WOMAN.wav', '/static/audio/wordpool/WORKER.wav', '/static/audio/wordpool/WORLD.wav', '/static/audio/wordpool/WRENCH.wav', '/static/audio/wordpool/WRIST.wav', '/static/audio/wordpool/XEROX.wav', '/static/audio/wordpool/YACHT.wav', '/static/audio/wordpool/YARN.wav', '/static/audio/wordpool/ZEBRA.wav', '/static/audio/wordpool/ZIPPER.wav', '/static/audio/wordpool/AudioTest/Test2.wav', '/static/audio/400Hz.wav'
         ],
         on_finish: function() {
-            jsPsych.data.addProperties({condition: condition_row, l_length: list_length, pres_rate: presentation_rate, num_lists: num_lists, session: 0, replays: tot_replays, worker_id: workerId});
+            jsPsych.data.addProperties({condition: condition_row, l_length: list_length, pres_rate: presentation_rate, num_lists: num_lists, session: 0, replays: tot_replays, worker_id: workerId, initiation_condition: initiation_condition});   
             //jsPsych.data.get().localSave('json', 'myHCMdata.json');
             psiturk.saveData({
                 success: function() { psiturk.completeHIT(); },
@@ -659,4 +677,4 @@ function runExperiment() {
     });
 }
 
-//runExperiment();
+// runExperiment();
