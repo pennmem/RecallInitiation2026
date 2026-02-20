@@ -1,6 +1,10 @@
 function runExperiment() {
 
     var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
+    var prolific_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+
 
     var mycondition = condition;
     var mycounterbalance = counterbalance;
@@ -671,7 +675,7 @@ function runExperiment() {
             '/static/audio/wordpool/WIDOW.wav', '/static/audio/wordpool/WIFE.wav', '/static/audio/wordpool/WINDOW.wav', '/static/audio/wordpool/WITNESS.wav', '/static/audio/wordpool/WOMAN.wav', '/static/audio/wordpool/WORKER.wav', '/static/audio/wordpool/WORLD.wav', '/static/audio/wordpool/WRENCH.wav', '/static/audio/wordpool/WRIST.wav', '/static/audio/wordpool/XEROX.wav', '/static/audio/wordpool/YACHT.wav', '/static/audio/wordpool/YARN.wav', '/static/audio/wordpool/ZEBRA.wav', '/static/audio/wordpool/ZIPPER.wav', '/static/audio/wordpool/AudioTest/Test2.wav', '/static/audio/400Hz.wav'
         ],
         on_finish: function() {
-            jsPsych.data.addProperties({condition: condition_row, l_length: list_length, pres_rate: presentation_rate, num_lists: num_lists, session: 2, replays: tot_replays, worker_id: workerId});
+            jsPsych.data.addProperties({condition: condition_row, l_length: list_length, pres_rate: presentation_rate, num_lists: num_lists, session: 0, replays: tot_replays, prolific_pid: prolific_pid, study_id: study_id, session_id: session_id, initiation_condition: initiation_condition});   
             //jsPsych.data.get().localSave('json', 'myHCMdata.json');
             psiturk.saveData({
                 success: function() { psiturk.completeHIT(); },
@@ -685,4 +689,4 @@ function runExperiment() {
     });
 }
 
-//runExperiment();
+runExperiment();
