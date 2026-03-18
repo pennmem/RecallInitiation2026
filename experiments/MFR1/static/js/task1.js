@@ -486,9 +486,9 @@ function runExperiment() {
         on_finish: function(data){
             var recalled = data.response.Q0.toString().toLowerCase();
             if(recalled == 'null'){
-                data.serial_position = null;
+                data.serial_position = 99;
             } else {
-                data.serial_position = -1;
+                data.serial_position = 88;
             }
             for(var j = 0; j < arr_list.length; j++){
                 if(recalled == arr_list[j]){
@@ -518,7 +518,6 @@ function runExperiment() {
     //recall timeout after 90s
     var recall_length = 90000;
     function recall_over(){
-        jsPsych.finishTrial({response: {Q0: "null"}, rt: null});
         return time_left = false;
     };
 
