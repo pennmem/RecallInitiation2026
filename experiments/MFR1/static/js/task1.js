@@ -584,6 +584,7 @@ function runExperiment() {
             timeline.push(hold_keys_instructions);
             timeline.push(sound_tone);
             timeline.push(list_presentation);
+            timeline.push(recall_instructions);
             timeline.push(recall_timer);
             timeline.push(recall_period);
             timeline.push(ready);
@@ -591,6 +592,7 @@ function runExperiment() {
             timeline.push(hold_keys_instructions);
             timeline.push(sound_tone);
             timeline.push(list_presentation);
+            timeline.push(recall_instructions);
             timeline.push(recall_timer);
             timeline.push(recall_period);
             timeline.push(notes);
