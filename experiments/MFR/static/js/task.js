@@ -528,6 +528,7 @@ function runExperiment() {
     //recall timeout after 90s
     var recall_length = 90000;
     function recall_over(){
+        jsPsych.finishTrial({response: {Q0: "null"}, rt: null});
         return time_left = false;
     };
 
