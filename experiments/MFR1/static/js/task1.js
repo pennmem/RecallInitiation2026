@@ -495,6 +495,8 @@ function runExperiment() {
                     data.serial_position = j + 1;
                 }
             }
+            data.recall_position = rec_words.length + 1;
+            data.is_first_recall = (rec_words.length === 0);
             data.rec_word = recalled;
             rec_words.push(recalled)
             rts.push(data.rt);
