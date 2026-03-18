@@ -485,9 +485,9 @@ function runExperiment() {
         on_finish: function(data){
             var recalled = data.response.Q0.toString().toLowerCase();
             if(recalled == 'null'){
-                data.serial_position = 99;
+                data.serial_position = null;
             } else {
-                data.serial_position = 88;
+                data.serial_position = -1;
             }
             for(var j = 0; j < arr_list.length; j++){
                 if(recalled == arr_list[j]){
