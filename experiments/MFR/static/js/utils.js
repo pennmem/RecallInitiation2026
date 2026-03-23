@@ -4,12 +4,12 @@
  */
 var jsPsychUtils = {
     
-    get_check_willing: function(psiturk){
+    get_check_willing: function(){
         let four_failed_sess = {
             type: 'html-keyboard-response',
             response_ends_trial: false,
             stimulus: "<p>Please do not reload the page.</p>" +
-            "<p>Due to your inability to complete multiple sessions, we ask that you return this HIT to MTurk at this time.</p>"
+            "<p>Due to your inability to complete multiple sessions, we ask that you return this HIT to Prolific at this time.</p>"
         }
         let four_sess = {
             type: 'html-button-response',
@@ -38,7 +38,7 @@ var jsPsychUtils = {
     get_attention_check: function() {
         let question_1 = {
             type: 'html-button-response',
-            stimulus: '<p>"If any one faculty of our nature may be called more wonderful than the rest, I do think it is memory. There seems something more speakingly incomprehensible in the powers, the failures, the inequalities of memory, than in any other of our intelligence. Please answer the question below honestly, but for the next question, pick "never". The memory is sometimes so retentive, so serviceable, so obedient, at others, so bewildered and so weak, and at others again, so tyrannic, so beyond control! We are to be sure a miracle every way, but our powers of recollecting and of forgetting, do seem peculiarly past finding out." -Jane Austen </p>' +
+            stimulus: '<p>"If any one faculty of our nature may be called more wonderful than the rest, I do think it is memory. There seems something more speakingly incomprehensible in the powers, the failures, the inequalities of memory, than in any other of our intelligence. Please answer the question below honestly, but for the next question, pick "never". The memory is sometimes so retentive, so serviceable, so obedient, at others, so bewildered and so weak, and at others again, so tyrannic, so beyond control! We are to be sure a miracle every way, but our powers of recollecting and of forgetting, do seem peculiarly past finding out." - Jane Austen </p>' +
             "<p> How old is your oldest memory? </p>",
             choices: ["<5 years", "5-15 years", "15-25 years", "25+ years"],
             
@@ -56,7 +56,7 @@ var jsPsychUtils = {
             response_ends_trial: false,
             stimulus: "<p>The preceding questions were designed to screen participants who are not carefully following the instructions of our study.<p>" +
             "<p>Please do not reload the page.</p>" +
-            "<p>Based on your responses to these questions, we ask that you return this HIT to MTurk at this time.</p>"
+            "<p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>"
         }
 
         let check_failed_node = {
