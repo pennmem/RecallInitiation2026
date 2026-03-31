@@ -298,7 +298,7 @@ function runExperiment() {
             }}
         ],
         post_trial_gap: 1,
-        data: {type: 'ATT_REC'},
+        data: function(){ return {type: 'ATT_REC'} },
         on_finish: function(data){
             var att_recalled = ((data.response && data.response.Q0) ? data.response.Q0 : "").toString().toLowerCase();
             var serial_pos = att_list.indexOf(att_recalled) + 1;
@@ -374,7 +374,7 @@ function runExperiment() {
     var cont_node = {
         timeline: [cont_att],
         conditional_function: function(){
-            if (att_correct == 2){
+            if (att_correct == 2 && started_correctly){
                 return true;
             } else {
                 return false;
@@ -475,8 +475,6 @@ function runExperiment() {
         post_trial_gap: 500
     };
 
-    //serial position of recalled word (88 = intrusion, null entry when recall times out)
-    var srposR = 88;
     //array of recalled words
     var rec_words = [];
     //array of response times of recalled words
