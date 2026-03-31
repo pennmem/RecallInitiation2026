@@ -1,14 +1,28 @@
 function runExperiment() {
 
-    var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
-    var prolific_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var prolific_pid = jsPsych.data.getURLVariable('PROLIFIC_PID');
     var study_id = jsPsych.data.getURLVariable('STUDY_ID');
     var session_id = jsPsych.data.getURLVariable('SESSION_ID');
 
-    var mycondition = condition;
-    var mycounterbalance = counterbalance;
+    var COMPLETION_CODE = "CSPKTOCQ";
+    var PROLIFIC_COMPLETE_URL = "https://app.prolific.com/submissions/complete?cc=" + COMPLETION_CODE;
 
-    var workerId = uniqueId.split(':')[0];
+    function saveData() {
+        return fetch("/save_data", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prolific_pid: prolific_pid,
+                study_id: study_id,
+                session_id: session_id,
+                data: jsPsych.data.get().values()
+            })
+        });
+    }
+
+    var workerId = prolific_pid;
 
     var initiation_conditions = ["free", "primacy", "recency"];
     var initiation_condition = jsPsych.randomization.sampleWithoutReplacement(initiation_conditions, 1)[0];
@@ -383,9 +397,6 @@ function runExperiment() {
         stimulus: '<p>You are ready for the first list of words!</p><p>Press Start to proceed.</p>',
         choices: ["Start"],
         post_trial_gap: 1000,
-        on_finish: function(){
-            psiturk.finishInstructions();
-        }
     }
     timeline.push(start_experiment);
 

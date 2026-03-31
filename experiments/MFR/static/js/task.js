@@ -4,7 +4,7 @@ function runExperiment() {
     var study_id = jsPsych.data.getURLVariable('STUDY_ID');
     var session_id = jsPsych.data.getURLVariable('SESSION_ID');
 
-    var COMPLETION_CODE = "CSPKTOCQ";
+    var COMPLETION_CODE = "CEFWOVMK";
     var PROLIFIC_COMPLETE_URL = "https://app.prolific.com/submissions/complete?cc=" + COMPLETION_CODE;
 
     function saveData() {
@@ -17,32 +17,21 @@ function runExperiment() {
                 prolific_pid: prolific_pid,
                 study_id: study_id,
                 session_id: session_id,
-                experiment: "RCI2026",
-                table_name: "rci2026_prolific_pilot",
+                experiment: "dirFR",
+                table_name: "dirfr",
                 data: jsPsych.data.get().values()
             })
         });
     }
 
-    var initiation_conditions = ["free", "primacy", "recency"];
+    var initiation_conditions = ["primacy", "recency"];
     var initiation_condition = jsPsych.randomization.sampleWithoutReplacement(initiation_conditions, 1)[0];
     
     var timeline = [];
 
-    //condition randomizer, autopopulates rest of experiment (list_length, presentation_rate)
-    var conditions_arr = [
-        [10, 2000],
-        [20, 1000],
-        [15, 2000],
-        [20, 2000],
-        [30, 1000],
-        [40, 1000]
-    ];
-
     //variables that hold which condition the participant is in
-    var condition_row = Math.floor(Math.random() * 6); 
-    var list_length = conditions_arr[condition_row][0];
-    var presentation_rate = conditions_arr[condition_row][1];
+    var list_length = 20;
+    var presentation_rate = 1000;
 
     // hold wheter keys are down
     var a_down = false;
@@ -77,7 +66,6 @@ function runExperiment() {
         type: "html-button-response",
         stimulus: `
         <div style="text-align:center; margin-bottom: 20px;">
-        <h3 style="margin-top: 0;">Word Memory Recall Task</h3>
       </div>
 
         <div style="text-align:left; line-height:1.5;">
@@ -114,13 +102,18 @@ function runExperiment() {
     };
     timeline.push(message);
 
-    // TODO: ask them to return the HIT due to failed attention check
     let fail_message = {
         type: 'html-keyboard-response',
         response_ends_trial: false,
         stimulus: "<p>The preceding page was designed to screen participants who are not carefully paying attention.</p> \
         <p>Please do not reload the page.</p> \
-        <p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>"
+        <p>Based on your responses to these questions, we ask that you return this HIT to Prolific at this time.</p>",
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 3000,
+        on_finish: function() {
+            jsPsych.endExperiment("Please return this study to Prolific.");
+    }
+
     };
 
     // check if correctly responded to message
@@ -148,19 +141,45 @@ function runExperiment() {
     var lab_check_willing = jsPsychUtils.get_check_willing();
     timeline.push(lab_check_willing);
 
+    var age_valid = false;
+
     var age = {
         type: 'survey-text',
         questions: [
-            {prompt: "<p>How old are you? Please type your age and press Enter.</p>"}
+            {prompt: "<p>How old are you? Please type your age and press Enter.</p>",
+                required: true
+            }
         ],
         button_label: 'Enter',
         data: {type: 'age'},
         on_finish: function(data){
-            var yrs = data.response.Q0;
-            data.age = yrs;
-        }
+            var yrs = parseInt(data.response.Q0);
+            if (!isNaN(yrs) && yrs >= 18 && yrs <= 117) {
+                data.age = yrs;
+                age_valid = true;
+            } else {
+                age_valid = false;
+            }
+        } 
     };
     timeline.push(age);
+
+    var age_fail = {
+        timeline: [{
+            type: 'html-keyboard-response',
+            response_ends_trial: false,
+            stimulus: "<p>Unfortunately, you do not qualify for this study.</p><p>Please return this HIT to Prolific at this time.</p>",
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 3000,
+            on_finish: function() {
+                jsPsych.endExperiment("Please return this study to Prolific.");
+            }
+        }],
+        conditional_function: function(){
+            return !age_valid;
+        }
+    };
+    timeline.push(age_fail);
 
     var gender = {
         type: 'html-button-response',
@@ -319,13 +338,30 @@ function runExperiment() {
     var att_trials = 0;
     var first_recall_checked = false;
     var started_correctly = false;
+    var att_time_left = true;
+
+    var att_recall_length = 30000;
+    function att_recall_over() {
+        jsPsych.finishTrial({response: {Q0: "null"}, rt: null});
+        att_time_left = false;
+    }
+    function end_att_recall() {
+        setTimeout(att_recall_over, att_recall_length);
+    }
+
+    var att_recall_timer = {
+        type: 'call-function',
+        func: end_att_recall,
+    };
+
     var att_recall = {
         type: 'survey-text',
         questions: [
-            {prompt: "<p>Recall the words you just heard. You MUST begin recall with a word from the <b>beginning</b> of the list.</p> \
-            <p> Press the Enter key or the Continue button to submit each word.</p>"}
+            {prompt: function() {
+                var direction = (initiation_condition == "primacy") ? "<b>beginning</b>" : "<b>end</b>";
+                return "<p>Recall the words you just heard. You MUST begin recall with a word from the " + direction + " of the list.</p>";
+            }}
         ],
-        trial_duration: 20000,
         post_trial_gap: 1,
         data: {type: 'ATT_REC'},
         on_finish: function(data){
@@ -336,10 +372,10 @@ function runExperiment() {
             };
             if (!first_recall_checked){
                 first_recall_checked = true;
-                if (serial_pos >= 1 && serial_pos <= 3){
-                    started_correctly = true;
+                if (initiation_condition == "primacy") {
+                    started_correctly = (serial_pos >= 1 && serial_pos <= 3);
                 } else {
-                    started_correctly = false;
+                    started_correctly = (serial_pos >= 3 && serial_pos <= 5);
                 }
             }
             att_trials++;
@@ -349,13 +385,14 @@ function runExperiment() {
     var att_rec_period = {
         timeline: [att_recall],
         loop_function: function(){
-            if(att_trials < 5){
+            if(att_trials < 5 && att_time_left){
                 return true;
             } else {
                 return false;
             }
         }
     };
+    timeline.push(att_recall_timer);
     timeline.push(att_rec_period);
 
     // if 3 or more words correctly recalled, continue with experiment 
@@ -499,7 +536,6 @@ function runExperiment() {
             } if (initiation_condition == "recency"){
                 return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the <b>end</b> of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
             } 
-            return "<p>You will now have 90 seconds to recall the words in any order</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
         },
         choices: ["Start Recall"],
         post_trial_gap: 500
@@ -509,8 +545,6 @@ function runExperiment() {
     var srposR = 88;
     //array of recalled words
     var rec_words = [];
-    //array of serial positions of recalled words
-    var ser_pos = [];
     //array of response times of recalled words
     var rts = [];
     //boolean to loop free-recall trial
@@ -543,7 +577,6 @@ function runExperiment() {
             data.rec_word = recalled;
             rec_words.push(recalled)
             rts.push(data.rt);
-            console.log(curr_list);
         }
     };
 
@@ -587,10 +620,8 @@ function runExperiment() {
             time_left = true;
             arr_list = [];
             rec_words = [];
-            ser_pos = [];
             rts = [];
             curr_list++;
-            //console.log(curr_list);
         }
     };
 
@@ -621,9 +652,6 @@ function runExperiment() {
         async: true,
         func: function(done) {
             jsPsych.data.addProperties({
-                condition: condition_row,
-                l_length: list_length,
-                pres_rate: presentation_rate,
                 num_lists: num_lists,
                 session: 0,
                 replays: tot_replays,

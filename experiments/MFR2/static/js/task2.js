@@ -1,15 +1,28 @@
 function runExperiment() {
 
-    var psiturk = new PsiTurk(uniqueId, adServerLoc, mode);
-    var prolific_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var prolific_pid = jsPsych.data.getURLVariable('PROLIFIC_PID');    
     var study_id = jsPsych.data.getURLVariable('STUDY_ID');
     var session_id = jsPsych.data.getURLVariable('SESSION_ID');
 
+    var COMPLETION_CODE = "CSPKTOCQ";
+    var PROLIFIC_COMPLETE_URL = "https://app.prolific.com/submissions/complete?cc=" + COMPLETION_CODE;
 
-    var mycondition = condition;
-    var mycounterbalance = counterbalance;
+    function saveData() {
+        return fetch("/save_data", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prolific_pid: prolific_pid,
+                study_id: study_id,
+                session_id: session_id,
+                data: jsPsych.data.get().values()
+            })
+        });
+    }
 
-    var workerId = uniqueId.split(':')[0];
+    var workerId = prolific_pid;
 
     var initiation_conditions = ["free", "primacy", "recency"];
     var initiation_condition = jsPsych.randomization.sampleWithoutReplacement(initiation_conditions, 1)[0];
@@ -593,6 +606,69 @@ function runExperiment() {
         trial_duration: 3500
     };
 
+    var save_data_node = {
+        type: "call-function",
+        async: true,
+        func: function(done) {
+            jsPsych.data.addProperties({
+                condition: condition_row,
+                l_length: list_length,
+                pres_rate: presentation_rate,
+                num_lists: num_lists,
+                session: 0,
+                replays: tot_replays,
+                prolific_pid: prolific_pid,
+                study_id: study_id,
+                session_id: session_id,
+                initiation_condition: initiation_condition
+            });
+    
+            saveData()
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error("Save failed");
+                    }
+                    done({ save_success: true });
+                })
+                .catch(function(error) {
+                    console.error(error);
+                    done({ save_success: false });
+                });
+        }
+    };
+    
+    var save_failed_page = {
+        type: "html-button-response",
+        stimulus: "<p>Oops! Your data could not be saved.</p><p>Please do not close this page. Press the button below to try again.</p>",
+        choices: ["Try Again"]
+    };
+    
+    var save_failed_node = {
+        timeline: [save_failed_page, save_data_node],
+        conditional_function: function() {
+            var last = jsPsych.data.get().last(1).values()[0];
+            return last.save_success === false;
+        }
+    };
+    
+    var redirect_to_prolific = {
+        type: "html-keyboard-response",
+        stimulus: "<p>Your responses have been saved.</p><p>You will now be redirected to Prolific.</p>",
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 1000,
+        on_finish: function() {
+            window.location.href = PROLIFIC_COMPLETE_URL;
+        }
+    };
+    
+    var redirect_node = {
+        timeline: [redirect_to_prolific],
+        conditional_function: function() {
+            var last = jsPsych.data.get().last(1).values()[0];
+            return last.save_success === true;
+        }
+    };
+
     //timeline blocking: depends on if first list (recall instructions), last list (final page), or somewhere in between (ready page)
     var num_lists = 12;    // just go with 12 lists
     for(var list_no = 1; list_no < num_lists + 1; list_no++){
@@ -624,25 +700,9 @@ function runExperiment() {
         }
     };
 
-    var error_message = "<h1>Oops!</h1><p>Something went wrong submitting your HIT. This might happen if you lose your internet connection. Do not reload the page.</p>"
-
-    prompt_resubmit = function() {
-        document.body.innerHTMK = error_message;
-        $("#resubmit").click(resubmit);
-    };
-
-    resubmit = function() {
-        document.body.innerHTML = "<h1>Trying to resubmit...</h1>";
-        reprompt = setTimeout(prompt_resubmit, 10000);
-
-        psiTurk.saveData({
-            success: function() {
-                clearInterval(reprompt);
-                psiTurk.completeHIT()
-            },
-            error: prompt_resubmit
-        });
-    };
+    timeline.push(save_data_node);
+    timeline.push(save_failed_node);
+    timeline.push(redirect_node);
     
 
     jsPsych.init({
@@ -678,18 +738,6 @@ function runExperiment() {
             '/static/audio/wordpool/TYPIST.wav', '/static/audio/wordpool/ULCER.wav', '/static/audio/wordpool/UMPIRE.wav', '/static/audio/wordpool/UNCLE.wav', '/static/audio/wordpool/VAGRANT.wav', '/static/audio/wordpool/VALLEY.wav', '/static/audio/wordpool/VALVE.wav', '/static/audio/wordpool/VELVET.wav', '/static/audio/wordpool/VENUS.wav', '/static/audio/wordpool/VICTIM.wav', '/static/audio/wordpool/VIKING.wav', '/static/audio/wordpool/VIRUS.wav', '/static/audio/wordpool/WAGON.wav', '/static/audio/wordpool/WAITER.wav', '/static/audio/wordpool/WAITRESS.wav', '/static/audio/wordpool/WARDROBE.wav', '/static/audio/wordpool/WASHER.wav', '/static/audio/wordpool/WASP.wav', '/static/audio/wordpool/WHISKERS.wav', '/static/audio/wordpool/WHISTLE.wav',
             '/static/audio/wordpool/WIDOW.wav', '/static/audio/wordpool/WIFE.wav', '/static/audio/wordpool/WINDOW.wav', '/static/audio/wordpool/WITNESS.wav', '/static/audio/wordpool/WOMAN.wav', '/static/audio/wordpool/WORKER.wav', '/static/audio/wordpool/WORLD.wav', '/static/audio/wordpool/WRENCH.wav', '/static/audio/wordpool/WRIST.wav', '/static/audio/wordpool/XEROX.wav', '/static/audio/wordpool/YACHT.wav', '/static/audio/wordpool/YARN.wav', '/static/audio/wordpool/ZEBRA.wav', '/static/audio/wordpool/ZIPPER.wav', '/static/audio/wordpool/AudioTest/Test2.wav', '/static/audio/400Hz.wav'
         ],
-        on_finish: function() {
-            jsPsych.data.addProperties({condition: condition_row, l_length: list_length, pres_rate: presentation_rate, num_lists: num_lists, session: 0, replays: tot_replays, prolific_pid: prolific_pid, study_id: study_id, session_id: session_id, initiation_condition: initiation_condition});   
-            //jsPsych.data.get().localSave('json', 'myHCMdata.json');
-            psiturk.saveData({
-                success: function() { psiturk.completeHIT(); },
-                error: prompt_resubmit
-            });
-        },
-        on_data_update: function(data) {
-            psiturk.recordTrialData(data);
-            psiturk.saveData();
-        }
     });
 }
 
