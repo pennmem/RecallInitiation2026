@@ -39,8 +39,6 @@ function runExperiment() {
     // total replayed words -- if really high, exclude data
     var tot_replays = 0;
 
-    console.log("initiation_condition:", initiation_condition);
-
     // listen for pressing 'a' or 'l' keys down
     window.addEventListener('keydown', (e) => {
         var name = e.key;
