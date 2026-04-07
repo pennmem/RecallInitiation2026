@@ -4,9 +4,9 @@ function runExperiment() {
     var study_id = jsPsych.data.getURLVariable('STUDY_ID');
     var session_id = jsPsych.data.getURLVariable('SESSION_ID');
 
-    var COMPLETION_CODE = "CEFWOVMK";
+    var COMPLETION_CODE = "C1GJ32AY";
     var PROLIFIC_COMPLETE_URL = "https://app.prolific.com/submissions/complete?cc=" + COMPLETION_CODE;
-
+    
     function saveData() {
         return fetch("/save", {
             method: "POST",
@@ -17,8 +17,8 @@ function runExperiment() {
                 prolific_pid: prolific_pid,
                 study_id: study_id,
                 session_id: session_id,
-                experiment: "dirFR",
-                table_name: "dirfr",
+                experiment: "dirFR3",           // <- add
+                table_name: "dirfr",  // <- add
                 data: jsPsych.data.get().values()
             })
         });
@@ -26,10 +26,9 @@ function runExperiment() {
 
     var initiation_conditions = ["primacy", "recency"];
     var initiation_condition = jsPsych.randomization.sampleWithoutReplacement(initiation_conditions, 1)[0];
-    
+
     var timeline = [];
 
-    //variables that hold which condition the participant is in
     var list_length = 20;
     var presentation_rate = 1000;
 
@@ -62,33 +61,20 @@ function runExperiment() {
     // Mike/Ricardo message
     var message = {
         type: "html-button-response",
-        stimulus: `
-        <div style="text-align:center; margin-bottom: 20px;">
-      </div>
-
-        <div style="text-align:left; line-height:1.5;">
-        <p>Dear Participant,</p>
-
-        <p>
-          The study you are about to begin will provide scientific data on how people learn and
-          remember information. It is very important that you pay attention throughout the task and follow
-          the instructions to the best of your ability. If you take notes, or otherwise disrupt the quality
-          of the data, then we will have to discard it, and you will not be invited to future experiments
-          produced by our laboratory. By analyzing your results, we will know whether you have provided us with valid
-          data, and this may impact your compensation at the end of the experiment, as well as your ability to participate
-          in our lab's future experiments. We ask that you find a quiet room where you can perform this task without
-          any interruptions. If you are willing and able to fulfill the requirements of this study as explained, click
-          the word 'Blue' below. Your data will be of great value to the scientific community and we thank you for your participation.
-        </p>
-
-        <p>
-          Sincerely,<br>
-          <i>Michael J. Kahana, Ph.D.</i><br>
-          Director of the Computational Memory Lab
-        </p>
-      </div>
-    `,
-    choices: ['Blue', 'Orange'],
+        stimulus: "<p style = 'text-align:left;'>Dear Participant,<br>\
+        The study you are about to begin will provide scientific data on how people learn and \
+        remember information. It is very important that you pay attention throughout the task and follow \
+        the instructions to the best of your ability. If you take notes, or otherwise disrupt the quality \
+        of the data, then we will have to discard it, and you will not be invited to future experiments \
+        produced by our laboratory. By analyzing your results, we will know whether you have provided us with valid \
+        data, and this may impact your compensation at the end of the experiment, as well as your ability to participate \
+        in our lab's future experiments. We ask that you find a quiet room where you can perform this task without \
+        any interruptions. If you are willing and able to fulfill the requirements of this study as explained, click \
+        the word 'Blue' below. Your data will be of great value to the scientific community and we thank you for your participation.<br>\
+        Sincerely,<br>\
+        <i>Michael J. Kahana, Ph.D.</i><br>\
+        Director of the Computational Memory Lab</p>",
+        choices: ['Blue', 'Orange'],
         on_finish: function(data){
             var resp = data.response;
             if(resp == 0){
@@ -110,8 +96,7 @@ function runExperiment() {
         trial_duration: 3000,
         on_finish: function() {
             jsPsych.endExperiment("Please return this study to Prolific.");
-    }
-
+        }
     };
 
     // check if correctly responded to message
@@ -130,62 +115,12 @@ function runExperiment() {
     };
     timeline.push(message_node);
 
+
+
     // place lab's attention test here
     // includes timeout for people who don't answer correctly
     var lab_attention_check = jsPsychUtils.get_attention_check();
     timeline.push(lab_attention_check);
-
-    // check if willing to do several sessions
-    var lab_check_willing = jsPsychUtils.get_check_willing();
-    timeline.push(lab_check_willing);
-
-    var age_valid = false;
-
-    var age = {
-        type: 'survey-text',
-        questions: [
-            {prompt: "<p>How old are you? Please type your age and press Enter.</p>",
-                required: true
-            }
-        ],
-        button_label: 'Enter',
-        data: {type: 'age'},
-        on_finish: function(data){
-            var yrs = parseInt(data.response.Q0);
-            if (!isNaN(yrs) && yrs >= 18 && yrs <= 117) {
-                data.age = yrs;
-                age_valid = true;
-            } else {
-                age_valid = false;
-            }
-        } 
-    };
-    timeline.push(age);
-
-    var age_fail = {
-        timeline: [{
-            type: 'html-keyboard-response',
-            response_ends_trial: false,
-            stimulus: "<p>Unfortunately, you do not qualify for this study.</p><p>Please return this HIT to Prolific at this time.</p>",
-            choices: jsPsych.NO_KEYS,
-            trial_duration: 3000,
-            on_finish: function() {
-                jsPsych.endExperiment("Please return this study to Prolific.");
-            }
-        }],
-        conditional_function: function(){
-            return !age_valid;
-        }
-    };
-    timeline.push(age_fail);
-
-    var gender = {
-        type: 'html-button-response',
-        stimulus: '<p>What gender do you identify as?</p>',
-        choices: ['Male', 'Female', 'Other', 'Prefer not to answer'],      // 0 = male, 1 = female
-        data: {type: 'gender'}
-    };
-    timeline.push(gender);
 
     //welcome page... something done from separate file called to by psiturk?
     var welcome = {
@@ -194,22 +129,24 @@ function runExperiment() {
     };
     timeline.push(welcome);
 
-    //instructions page... something done from separate file called to by psiturk?
+    //instructions page
     var instructions = {
-        type: "instructions",
+        type: 'instructions',
         pages: [
-            '<p>In this experiment you will be presented \
-            with a list of words, which you will hear one after another.</p> \
-            <p>Then, there will be a 90 second recall period where you will be asked to recall the words from \
-            the list by typing them into the recall box. You may be asked to recall them in a particular order.</p>',
-            '<p>This process of hearing a list of words and then recalling those words \
-            will repeat for a number of lists, all of different words.</p> \
-            <p>Remember to recall words from the immediately preceding list during each recall period.</p>',
-            '<p>Please do <b>NOT</b> write down words, as this experiment is trying to study human memory!</p> \
-            <p>Lastly, your attention will be monitored as you go, so please give your best effort in order to \
-            pass all the checkpoints and make it the end of the experiment for compensation!</p>',
-            '<p>Also, good, honest performance on this task could qualify you for further, more lucrative sessions!</p><p>Thank you!</p> \
-            <p>Press Next to continue to the audio test.</p>'
+            '<p>Congratulations! Based on your performance in our previous round of data collection \
+            you have qualified for part 2 of our experiment.</p> \
+            <p>Thank you for your attention and effort in part 1.</p> \
+            <p>The next page will give you a refresher on how the experiment will run.</p>',
+            '<p>In this experiment you will be presented with a list of words, which you will hear one after another.</p> \
+            <p>Then, there will be a 90 second recall period where you will be asked to recall the words from the list \
+            by typing them into the recall box. You may be asked to recall them in a particular order.</p><p>This process of hearing a list of words and \
+            then recalling those words will repeat for 12 lists, all of different words.</p><p>Remember to recall words from \
+            the immediately preceeding list during each recall period.</p>',
+            '<p>Please do NOT write down words, as this experiment is trying to study human memory!</p> \
+            <p>Also, please do give your full attention and best effort to recall as many words as you can.</p> \
+            <p>Again, honest performance on this task will qualify you for up to 1 more further, more lucrative \
+            follow up sessions.</p>',
+            '<p>Thank you!</p><p>Press Next to continue to the audio test.</p>' 
         ],
         show_clickable_nav: true
     };
@@ -217,7 +154,7 @@ function runExperiment() {
 
     var sound_tone = {
         type: 'audio-keyboard-response',
-        stimulus: 'audio/400Hz.wav',
+        stimulus: '/static/audio/400Hz.wav',
         trial_duration: 500,
         choices: jsPsych.NO_KEYS,
         post_trial_gap: 1000
@@ -225,7 +162,7 @@ function runExperiment() {
 
     var trial_audio = {
         type: 'audio-keyboard-response',
-        stimulus: 'audio/wordpool/AudioTest/Test2.wav',
+        stimulus: '/static/audio/wordpool/AudioTest/Test2.wav',
         choices: ['r', 'c'],
         prompt: "<p>Adjust your volume so you can clearly hear the audio.</p> \
         <p> This is important so that you can hear the words presented that you will be asked to recall.</p> \
@@ -277,7 +214,7 @@ function runExperiment() {
         {audio: 'audio/wordpool/WIDOW.wav', word: "Widow"}, {audio: 'audio/wordpool/WIFE.wav', word: "Wife"}, {audio: 'audio/wordpool/WINDOW.wav', word: "Window"}, {audio: 'audio/wordpool/WITNESS.wav', word: "Witness"}, {audio: 'audio/wordpool/WOMAN.wav', word: "Woman"}, {audio: 'audio/wordpool/WORKER.wav', word: 'Worker'}, {audio: 'audio/wordpool/WORLD.wav', word: "World"}, {audio: 'audio/wordpool/WRENCH.wav', word: "Wrench"}, {audio: 'audio/wordpool/WRIST.wav', word: "Wrist"}, {audio: 'audio/wordpool/XEROX.wav', word: "Xerox"}, {audio: 'audio/wordpool/YACHT.wav', word: "Yacht"}, {audio: 'audio/wordpool/YARN.wav', word: "Yarn"}, {audio: 'audio/wordpool/ZEBRA.wav', word: "Zebra"}, {audio: 'audio/wordpool/ZIPPER.wav', word: "Zipper"}
     ]
 
-    //randomize audio/wordpool
+    //randomize /static/audio/wordpool
     var timeline_variables = jsPsych.randomization.shuffle(wordpool);
 
     //ensure not to repeat words from wordpool
@@ -361,7 +298,7 @@ function runExperiment() {
             }}
         ],
         post_trial_gap: 1,
-        data: {type: 'ATT_REC'},
+        data: function(){ return {type: 'ATT_REC'} },
         on_finish: function(data){
             var att_recalled = ((data.response && data.response.Q0) ? data.response.Q0 : "").toString().toLowerCase();
             var serial_pos = att_list.indexOf(att_recalled) + 1;
@@ -425,7 +362,7 @@ function runExperiment() {
     var pass_node = {
         timeline: [pass_att],
         conditional_function: function(){
-            if (att_correct >= 3 && started_correctly) {
+            if (att_correct >= 3 && started_correctly){
                 return true;
             } else {
                 return false;
@@ -533,14 +470,11 @@ function runExperiment() {
                 return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the <b>beginning</b> of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
             } if (initiation_condition == "recency"){
                 return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the <b>end</b> of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
-            } 
-        },
+            }},
         choices: ["Start Recall"],
         post_trial_gap: 500
     };
 
-    //serial position of recalled word (88 = intrusion, null entry when recall times out)
-    var srposR = 88;
     //array of recalled words
     var rec_words = [];
     //array of response times of recalled words
@@ -556,8 +490,8 @@ function runExperiment() {
         ],
         post_trial_gap: 1,
         data: function(){
-		return {type: 'REC_WORD', list: curr_list}
-	},
+            return {type: 'REC_WORD', list: curr_list}
+        },
         on_finish: function(data){
             var recalled = ((data.response && data.response.Q0) ? data.response.Q0 : "null").toString().toLowerCase();
             if(recalled == 'null'){
@@ -650,8 +584,10 @@ function runExperiment() {
         async: true,
         func: function(done) {
             jsPsych.data.addProperties({
+                l_length: list_length,
+                pres_rate: presentation_rate,
                 num_lists: num_lists,
-                session: 0,
+                session: 3,
                 replays: tot_replays,
                 prolific_pid: prolific_pid,
                 study_id: study_id,
@@ -705,8 +641,9 @@ function runExperiment() {
         }
     };
 
+
     //timeline blocking: depends on if first list (recall instructions), last list (final page), or somewhere in between (ready page)
-    var num_lists = 6;    // 6 lists (since this data won't be in analysis)
+    var num_lists = 12;    // just go with 12 lists
     for(var list_no = 1; list_no < num_lists + 1; list_no++){
         if(list_no == 1){
             timeline.push(hold_keys_instructions);
@@ -740,38 +677,39 @@ function runExperiment() {
     timeline.push(save_failed_node);
     timeline.push(redirect_node);
 
+
     jsPsych.init({
         timeline: timeline,
         max_load_time: 120000,
         preload_audio: [
-            'audio/wordpool/ACTOR.wav', 'audio/wordpool/ACTRESS.wav', 'audio/wordpool/AGENT.wav', 'audio/wordpool/AIRPLANE.wav', 'audio/wordpool/AIRPORT.wav', 'audio/wordpool/ANKLE.wav', 'audio/wordpool/ANTLER.wav', 'audio/wordpool/APPLE.wav', 'audio/wordpool/APRON.wav', 'audio/wordpool/ARM.wav', 'audio/wordpool/ARMY.wav', 'audio/wordpool/ASIA.wav', 'audio/wordpool/ATLAS.wav', 'audio/wordpool/ATOM.wav', 'audio/wordpool/AUTHOR.wav', 'audio/wordpool/AWARD.wav', 'audio/wordpool/BABY.wav', 'audio/wordpool/BACKBONE.wav', 'audio/wordpool/BACON.wav', 'audio/wordpool/BADGE.wav', 
-            'audio/wordpool/BALLOON.wav', 'audio/wordpool/BANJO.wav', 'audio/wordpool/BANK.wav', 'audio/wordpool/BANKER.wav', 'audio/wordpool/BANQUET.wav', 'audio/wordpool/BARLEY.wav', 'audio/wordpool/BARREL.wav', 'audio/wordpool/BASEMENT.wav', 'audio/wordpool/BATHTUB.wav', 'audio/wordpool/BEAKER.wav', 'audio/wordpool/BEAST.wav', 'audio/wordpool/BEAVER.wav', 'audio/wordpool/BEEF.wav', 'audio/wordpool/BELLY.wav', 'audio/wordpool/BIKE.wav', 'audio/wordpool/BINDER.wav', 'audio/wordpool/BISON.wav', 'audio/wordpool/BLACKBOARD.wav', 'audio/wordpool/BLADE.wav', 'audio/wordpool/BLENDER.wav',
-            'audio/wordpool/BLOCKADE.wav', 'audio/wordpool/BLOUSE.wav', 'audio/wordpool/BLUEPRINT.wav', 'audio/wordpool/BODY.wav', 'audio/wordpool/BOUQUET.wav', 'audio/wordpool/BOX.wav', 'audio/wordpool/BOYFRIEND.wav', 'audio/wordpool/BRACES.wav', 'audio/wordpool/BRANCH.wav', 'audio/wordpool/BRANDY.wav', 'audio/wordpool/BREAST.wav', 'audio/wordpool/BRICK.wav', 'audio/wordpool/BRIEFCASE.wav', 'audio/wordpool/BROOK.wav', 'audio/wordpool/BROTHER.wav', 'audio/wordpool/BUBBLE.wav', 'audio/wordpool/BUCKET.wav', 'audio/wordpool/BUG.wav', 'audio/wordpool/BUGGY.wav', 'audio/wordpool/BULLET.wav',
-            'audio/wordpool/BUNNY.wav', 'audio/wordpool/BUREAU.wav', 'audio/wordpool/BURGLAR.wav', 'audio/wordpool/BUTCHER.wav', 'audio/wordpool/CABBAGE.wav', 'audio/wordpool/CABIN.wav', 'audio/wordpool/CAFE.wav', 'audio/wordpool/CAMEL.wav', 'audio/wordpool/CANAL.wav', 'audio/wordpool/CANDY.wav', 'audio/wordpool/CANYON.wav', 'audio/wordpool/CAPTIVE.wav', 'audio/wordpool/CARRIAGE.wav', 'audio/wordpool/CARROT.wav', 'audio/wordpool/CASHEW.wav', 'audio/wordpool/CASHIER.wav', 'audio/wordpool/CASKET.wav', 'audio/wordpool/CATCHER.wav', 'audio/wordpool/CATTLE.wav', 'audio/wordpool/CELLAR.wav',
-            'audio/wordpool/CHAMPAGNE.wav', 'audio/wordpool/CHAPEL.wav', 'audio/wordpool/CHAUFFEUR.wav', 'audio/wordpool/CHEMIST.wav', 'audio/wordpool/CHEST.wav', 'audio/wordpool/CHILD.wav', 'audio/wordpool/CHIPMUNK.wav', 'audio/wordpool/CHURCH.wav', 'audio/wordpool/CIGAR.wav', 'audio/wordpool/CITRUS.wav', 'audio/wordpool/CLAM.wav', 'audio/wordpool/CLAMP.wav', 'audio/wordpool/CLIMBER.wav', 'audio/wordpool/CLOCK.wav', 'audio/wordpool/CLOTHES.wav', 'audio/wordpool/CLOUD.wav', 'audio/wordpool/COBRA.wav', 'audio/wordpool/COCKTAIL.wav', 'audio/wordpool/COCOON.wav', 'audio/wordpool/COD.wav',
-            'audio/wordpool/COFFEE.wav', 'audio/wordpool/COIN.wav', 'audio/wordpool/COLLEGE.wav', 'audio/wordpool/COMET.wav', 'audio/wordpool/COMPASS.wav', 'audio/wordpool/CONCERT.wav', 'audio/wordpool/CONTRACT.wav', 'audio/wordpool/CONVICT.wav', 'audio/wordpool/COOK.wav', 'audio/wordpool/COOKBOOK.wav', 'audio/wordpool/COSTUME.wav', 'audio/wordpool/COTTAGE.wav', 'audio/wordpool/COUCH.wav', 'audio/wordpool/COUNTRY.wav', 'audio/wordpool/COUNTY.wav', 'audio/wordpool/COUSIN.wav', 'audio/wordpool/COWBOY.wav', 'audio/wordpool/CRAB.wav', 'audio/wordpool/CRATER.wav', 'audio/wordpool/CRAYON.wav',
-            'audio/wordpool/CREATURE.wav', 'audio/wordpool/CREVICE.wav', 'audio/wordpool/CRIB.wav', 'audio/wordpool/CRICKET.wav', 'audio/wordpool/CRITIC.wav', 'audio/wordpool/CROSS.wav', 'audio/wordpool/CROWN.wav', 'audio/wordpool/CRUTCH.wav', 'audio/wordpool/CUPBOARD.wav', 'audio/wordpool/CURTAIN.wav', 'audio/wordpool/CUSTARD.wav', 'audio/wordpool/CYCLONE.wav', 'audio/wordpool/DAISY.wav', 'audio/wordpool/DANCER.wav', 'audio/wordpool/DANDRUFF.wav', 'audio/wordpool/DASHBOARD.wav', 'audio/wordpool/DAUGHTER.wav', 'audio/wordpool/DENIM.wav', 'audio/wordpool/DENTIST.wav', 'audio/wordpool/DIME.wav',
-            'audio/wordpool/DINER.wav', 'audio/wordpool/DIVER.wav', 'audio/wordpool/DOLPHIN.wav', 'audio/wordpool/DONKEY.wav', 'audio/wordpool/DONOR.wav', 'audio/wordpool/DORM.wav', 'audio/wordpool/DOUGHNUT.wav', 'audio/wordpool/DRAGON.wav', 'audio/wordpool/DRAWING.wav', 'audio/wordpool/DRESS.wav', 'audio/wordpool/DRESSER.wav', 'audio/wordpool/DRILL.wav', 'audio/wordpool/DRINK.wav', 'audio/wordpool/DRIVER.wav', 'audio/wordpool/DRUG.wav', 'audio/wordpool/DUST.wav', 'audio/wordpool/DUSTPAN.wav', 'audio/wordpool/EAGLE.wav', 'audio/wordpool/EGYPT.wav', 'audio/wordpool/ELBOW.wav',
-            'audio/wordpool/EMPIRE.wav', 'audio/wordpool/EUROPE.wav', 'audio/wordpool/EXPERT.wav', 'audio/wordpool/EYELASH.wav', 'audio/wordpool/FARMER.wav', 'audio/wordpool/FEMALE.wav', 'audio/wordpool/FIDDLE.wav', 'audio/wordpool/FILM.wav', 'audio/wordpool/FINGER.wav', 'audio/wordpool/FIREMAN.wav', 'audio/wordpool/FIREPLACE.wav', 'audio/wordpool/FLAG.wav', 'audio/wordpool/FLASHLIGHT.wav', 'audio/wordpool/FLASK.wav', 'audio/wordpool/FLEET.wav', 'audio/wordpool/FLESH.wav', 'audio/wordpool/FLIPPER.wav', 'audio/wordpool/FLOWER.wav', 'audio/wordpool/FLUTE.wav', 'audio/wordpool/FOOT.wav',
-            'audio/wordpool/FOOTBALL.wav', 'audio/wordpool/FOREHEAD.wav', 'audio/wordpool/FOREST.wav', 'audio/wordpool/FOX.wav', 'audio/wordpool/FRAGRANCE.wav', 'audio/wordpool/FRAME.wav', 'audio/wordpool/FRANCE.wav', 'audio/wordpool/FRECKLE.wav', 'audio/wordpool/FREEZER.wav', 'audio/wordpool/FRIEND.wav', 'audio/wordpool/FRUIT.wav', 'audio/wordpool/FUNGUS.wav', 'audio/wordpool/GALLON.wav', 'audio/wordpool/GANGSTER.wav', 'audio/wordpool/GARBAGE.wav', 'audio/wordpool/GARDEN.wav', 'audio/wordpool/GARLIC.wav', 'audio/wordpool/GAVEL.wav', 'audio/wordpool/GAZELLE.wav', 'audio/wordpool/GHETTO.wav',
-            'audio/wordpool/GIFT.wav', 'audio/wordpool/GIRL.wav', 'audio/wordpool/GLASS.wav', 'audio/wordpool/GLOBE.wav', 'audio/wordpool/GLOVE.wav', 'audio/wordpool/GOBLIN.wav', 'audio/wordpool/GRAPE.wav', 'audio/wordpool/GRAVE.wav', 'audio/wordpool/GRAVEL.wav', 'audio/wordpool/GRILL.wav', 'audio/wordpool/GROUND.wav', 'audio/wordpool/GUARD.wav', 'audio/wordpool/GUITAR.wav', 'audio/wordpool/GYMNAST.wav', 'audio/wordpool/HAMPER.wav', 'audio/wordpool/HAND.wav', 'audio/wordpool/HANDBAG.wav', 'audio/wordpool/HARP.wav', 'audio/wordpool/HATCHET.wav', 'audio/wordpool/HAWK.wav',
-            'audio/wordpool/HEADBAND.wav', 'audio/wordpool/HEART.wav', 'audio/wordpool/HEDGE.wav', 'audio/wordpool/HELMET.wav', 'audio/wordpool/HERO.wav', 'audio/wordpool/HIGHWAY.wav', 'audio/wordpool/HIKER.wav', 'audio/wordpool/HONEY.wav', 'audio/wordpool/HOOD.wav', 'audio/wordpool/HOOK.wav', 'audio/wordpool/HORNET.wav', 'audio/wordpool/HOSTESS.wav', 'audio/wordpool/HOUND.wav', 'audio/wordpool/HUMAN.wav', 'audio/wordpool/HUSBAND.wav', 'audio/wordpool/ICEBERG.wav', 'audio/wordpool/ICING.wav', 'audio/wordpool/IGLOO.wav', 'audio/wordpool/INFANT.wav', 'audio/wordpool/INMATE.wav',
-            'audio/wordpool/ISLAND.wav', 'audio/wordpool/ITEM.wav', 'audio/wordpool/JAPAN.wav', 'audio/wordpool/JELLO.wav', 'audio/wordpool/JELLY.wav', 'audio/wordpool/JOURNAL.wav', 'audio/wordpool/JUDGE.wav', 'audio/wordpool/JUGGLER.wav', 'audio/wordpool/JUNGLE.wav', 'audio/wordpool/JURY.wav', 'audio/wordpool/KEEPER.wav', 'audio/wordpool/KETCHUP.wav', 'audio/wordpool/KIDNEY.wav', 'audio/wordpool/KITCHEN.wav', 'audio/wordpool/KLEENEX.wav', 'audio/wordpool/KNAPSACK.wav', 'audio/wordpool/KNIFE.wav', 'audio/wordpool/LABEL.wav', 'audio/wordpool/LACE.wav', 'audio/wordpool/LADY.wav',
-            'audio/wordpool/LAGOON.wav', 'audio/wordpool/LAKE.wav', 'audio/wordpool/LAMP.wav', 'audio/wordpool/LAPEL.wav', 'audio/wordpool/LASER.wav', 'audio/wordpool/LAVA.wav', 'audio/wordpool/LEADER.wav', 'audio/wordpool/LEG.wav', 'audio/wordpool/LEOPARD.wav', 'audio/wordpool/LETTUCE.wav', 'audio/wordpool/LIGHTNING.wav', 'audio/wordpool/LILY.wav', 'audio/wordpool/LION.wav', 'audio/wordpool/LIPSTICK.wav', 'audio/wordpool/LIVER.wav', 'audio/wordpool/LIZARD.wav', 'audio/wordpool/LODGE.wav', 'audio/wordpool/LOFT.wav', 'audio/wordpool/LONDON.wav', 'audio/wordpool/LOVER.wav',
-            'audio/wordpool/LUGGAGE.wav', 'audio/wordpool/LUMBER.wav', 'audio/wordpool/LUNCH.wav', 'audio/wordpool/MACHINE.wav', 'audio/wordpool/MAILBOX.wav', 'audio/wordpool/MAILMAN.wav', 'audio/wordpool/MAMMAL.wav', 'audio/wordpool/MAPLE.wav', 'audio/wordpool/MARINE.wav', 'audio/wordpool/MARKER.wav', 'audio/wordpool/MARKET.wav', 'audio/wordpool/MARROW.wav', 'audio/wordpool/MARS.wav', 'audio/wordpool/MARSH.wav', 'audio/wordpool/MASK.wav', 'audio/wordpool/MATCH.wav', 'audio/wordpool/MATTRESS.wav', 'audio/wordpool/MESSAGE.wav', 'audio/wordpool/MILDEW.wav', 'audio/wordpool/MILK.wav',
-            'audio/wordpool/MISSILE.wav', 'audio/wordpool/MISTER.wav', 'audio/wordpool/MONEY.wav', 'audio/wordpool/MONSTER.wav', 'audio/wordpool/MOP.wav', 'audio/wordpool/MOTEL.wav', 'audio/wordpool/MOTOR.wav', 'audio/wordpool/MUFFIN.wav', 'audio/wordpool/MUMMY.wav', 'audio/wordpool/MUSTARD.wav', 'audio/wordpool/NAPKIN.wav', 'audio/wordpool/NECKLACE.wav', 'audio/wordpool/NEUTRON.wav', 'audio/wordpool/NIGHTGOWN.wav', 'audio/wordpool/NOMAD.wav', 'audio/wordpool/NOTEBOOK.wav', 'audio/wordpool/NOVEL.wav', 'audio/wordpool/NURSE.wav', 'audio/wordpool/OFFICE.wav', 'audio/wordpool/OINTMENT.wav',
-            'audio/wordpool/OMELET.wav', 'audio/wordpool/ONION.wav', 'audio/wordpool/ORANGE.wav', 'audio/wordpool/ORCHID.wav', 'audio/wordpool/OUTDOORS.wav', 'audio/wordpool/OUTFIT.wav', 'audio/wordpool/OUTLAW.wav', 'audio/wordpool/OX.wav', 'audio/wordpool/OYSTER.wav', 'audio/wordpool/OZONE.wav', 'audio/wordpool/PACKAGE.wav', 'audio/wordpool/PADDING.wav', 'audio/wordpool/PADDLE.wav', 'audio/wordpool/PALACE.wav', 'audio/wordpool/PANTHER.wav', 'audio/wordpool/PAPER.wav', 'audio/wordpool/PARENT.wav', 'audio/wordpool/PARROT.wav', 'audio/wordpool/PARSLEY.wav', 'audio/wordpool/PARTNER.wav',
-            'audio/wordpool/PASSAGE.wav', 'audio/wordpool/PASTA.wav', 'audio/wordpool/PASTRY.wav', 'audio/wordpool/PATIENT.wav', 'audio/wordpool/PATROL.wav', 'audio/wordpool/PEACH.wav', 'audio/wordpool/PEANUT.wav', 'audio/wordpool/PEBBLE.wav', 'audio/wordpool/PECAN.wav', 'audio/wordpool/PENGUIN.wav', 'audio/wordpool/PEPPER.wav', 'audio/wordpool/PERCH.wav', 'audio/wordpool/PERFUME.wav', 'audio/wordpool/PERMIT.wav', 'audio/wordpool/PIANO.wav', 'audio/wordpool/PICNIC.wav', 'audio/wordpool/PICTURE.wav', 'audio/wordpool/PIGEON.wav', 'audio/wordpool/PIGMENT.wav', 'audio/wordpool/PILOT.wav',
-            'audio/wordpool/PIMPLE.wav', 'audio/wordpool/PISTOL.wav', 'audio/wordpool/PISTON.wav', 'audio/wordpool/PIZZA.wav', 'audio/wordpool/PLAID.wav', 'audio/wordpool/PLASTER.wav', 'audio/wordpool/PLATE.wav', 'audio/wordpool/PLAYGROUND.wav', 'audio/wordpool/PLAZA.wav', 'audio/wordpool/PLIERS.wav', 'audio/wordpool/PLUTO.wav', 'audio/wordpool/POCKET.wav', 'audio/wordpool/POET.wav', 'audio/wordpool/POISON.wav', 'audio/wordpool/POLICE.wav', 'audio/wordpool/POPCORN.wav', 'audio/wordpool/PORK.wav', 'audio/wordpool/PORTRAIT.wav', 'audio/wordpool/POSSUM.wav', 'audio/wordpool/POSTAGE.wav',
-            'audio/wordpool/POWDER.wav', 'audio/wordpool/PREACHER.wav', 'audio/wordpool/PRIMATE.wav', 'audio/wordpool/PRINCESS.wav', 'audio/wordpool/PROTON.wav', 'audio/wordpool/PUDDING.wav', 'audio/wordpool/PUDDLE.wav', 'audio/wordpool/PUPPY.wav', 'audio/wordpool/QUAIL.wav', 'audio/wordpool/QUARTER.wav', 'audio/wordpool/QUEEN.wav', 'audio/wordpool/RABBIT.wav', 'audio/wordpool/RACKET.wav', 'audio/wordpool/RADISH.wav', 'audio/wordpool/RAFT.wav', 'audio/wordpool/RATTLE.wav', 'audio/wordpool/RAZOR.wav', 'audio/wordpool/REBEL.wav', 'audio/wordpool/RECEIPT.wav', 'audio/wordpool/RECORD.wav',
-            'audio/wordpool/RELISH.wav', 'audio/wordpool/REPORT.wav', 'audio/wordpool/RIFLE.wav', 'audio/wordpool/RIVER.wav', 'audio/wordpool/ROBBER.wav', 'audio/wordpool/ROBIN.wav', 'audio/wordpool/ROBOT.wav', 'audio/wordpool/ROCKET.wav', 'audio/wordpool/ROD.wav', 'audio/wordpool/ROOSTER.wav', 'audio/wordpool/RUG.wav', 'audio/wordpool/RUST.wav', 'audio/wordpool/SADDLE.wav', 'audio/wordpool/SALAD.wav', 'audio/wordpool/SALMON.wav', 'audio/wordpool/SALT.wav', 'audio/wordpool/SANDWICH.wav', 'audio/wordpool/SAUSAGE.wav', 'audio/wordpool/SCALLOP.wav', 'audio/wordpool/SCALPEL.wav',
-            'audio/wordpool/SCARECROW.wav', 'audio/wordpool/SCARF.wav', 'audio/wordpool/SCISSORS.wav', 'audio/wordpool/SCOTCH.wav', 'audio/wordpool/SCRIBBLE.wav', 'audio/wordpool/SCULPTURE.wav', 'audio/wordpool/SEAFOOD.wav', 'audio/wordpool/SEAGULL.wav', 'audio/wordpool/SEAL.wav', 'audio/wordpool/SERVANT.wav', 'audio/wordpool/SERVER.wav', 'audio/wordpool/SHARK.wav', 'audio/wordpool/SHELF.wav', 'audio/wordpool/SHELTER.wav', 'audio/wordpool/SHERIFF.wav', 'audio/wordpool/SHIRT.wav', 'audio/wordpool/SHORTCAKE.wav', 'audio/wordpool/SHORTS.wav', 'audio/wordpool/SHOULDER.wav', 'audio/wordpool/SHOVEL.wav',
-            'audio/wordpool/SHRUB.wav', 'audio/wordpool/SIBLING.wav', 'audio/wordpool/SIDEWALK.wav', 'audio/wordpool/SILK.wav', 'audio/wordpool/SISTER.wav', 'audio/wordpool/SKETCH.wav', 'audio/wordpool/SKILLET.wav', 'audio/wordpool/SKIRT.wav', 'audio/wordpool/SLIDE.wav', 'audio/wordpool/SLIME.wav', 'audio/wordpool/SLOPE.wav', 'audio/wordpool/SLUG.wav', 'audio/wordpool/SMOG.wav', 'audio/wordpool/SNACK.wav', 'audio/wordpool/SNAIL.wav', 'audio/wordpool/SNAKE.wav', 'audio/wordpool/SODA.wav', 'audio/wordpool/SOFTBALL.wav', 'audio/wordpool/SPACE.wav', 'audio/wordpool/SPARROW.wav',
-            'audio/wordpool/SPHINX.wav', 'audio/wordpool/SPIDER.wav', 'audio/wordpool/SPONGE.wav', 'audio/wordpool/SPOOL.wav', 'audio/wordpool/SPOON.wav', 'audio/wordpool/SPOUSE.wav', 'audio/wordpool/STALLION.wav', 'audio/wordpool/STAMP.wav', 'audio/wordpool/STAPLE.wav', 'audio/wordpool/STAR.wav', 'audio/wordpool/STATUE.wav', 'audio/wordpool/STICKER.wav', 'audio/wordpool/STOMACH.wav', 'audio/wordpool/STONE.wav', 'audio/wordpool/STOVE.wav', 'audio/wordpool/STREAM.wav', 'audio/wordpool/STUDENT.wav', 'audio/wordpool/SUBWAY.wav', 'audio/wordpool/SUITCASE.wav', 'audio/wordpool/SUMMIT.wav',
-            'audio/wordpool/SUNRISE.wav', 'audio/wordpool/SUNSET.wav', 'audio/wordpool/SUPPER.wav', 'audio/wordpool/SURVEY.wav', 'audio/wordpool/SUSPECT.wav', 'audio/wordpool/SWAMP.wav', 'audio/wordpool/SWIMMER.wav', 'audio/wordpool/SWITCH.wav', 'audio/wordpool/SWORD.wav', 'audio/wordpool/TABLE.wav', 'audio/wordpool/TABLET.wav', 'audio/wordpool/TART.wav', 'audio/wordpool/TAXI.wav', 'audio/wordpool/TEACHER.wav', 'audio/wordpool/TEMPLE.wav', 'audio/wordpool/TERMITE.wav', 'audio/wordpool/THIEF.wav', 'audio/wordpool/THREAD.wav', 'audio/wordpool/TILE.wav', 'audio/wordpool/TOASTER.wav',
-            'audio/wordpool/TOMBSTONE.wav', 'audio/wordpool/TORTOISE.wav', 'audio/wordpool/TOURIST.wav', 'audio/wordpool/TRACTOR.wav', 'audio/wordpool/TRANSPLANT.wav', 'audio/wordpool/TREAT.wav', 'audio/wordpool/TRENCH.wav', 'audio/wordpool/TRIBE.wav', 'audio/wordpool/TROMBONE.wav', 'audio/wordpool/TROUT.wav', 'audio/wordpool/TRUCK.wav', 'audio/wordpool/TUBA.wav', 'audio/wordpool/TUNNEL.wav', 'audio/wordpool/TURKEY.wav', 'audio/wordpool/TURNIP.wav', 'audio/wordpool/TURTLE.wav', 'audio/wordpool/TUTU.wav', 'audio/wordpool/TWEEZERS.wav', 'audio/wordpool/TWIG.wav', 'audio/wordpool/TWISTER.wav',
-            'audio/wordpool/TYPIST.wav', 'audio/wordpool/ULCER.wav', 'audio/wordpool/UMPIRE.wav', 'audio/wordpool/UNCLE.wav', 'audio/wordpool/VAGRANT.wav', 'audio/wordpool/VALLEY.wav', 'audio/wordpool/VALVE.wav', 'audio/wordpool/VELVET.wav', 'audio/wordpool/VENUS.wav', 'audio/wordpool/VICTIM.wav', 'audio/wordpool/VIKING.wav', 'audio/wordpool/VIRUS.wav', 'audio/wordpool/WAGON.wav', 'audio/wordpool/WAITER.wav', 'audio/wordpool/WAITRESS.wav', 'audio/wordpool/WARDROBE.wav', 'audio/wordpool/WASHER.wav', 'audio/wordpool/WASP.wav', 'audio/wordpool/WHISKERS.wav', 'audio/wordpool/WHISTLE.wav',
-            'audio/wordpool/WIDOW.wav', 'audio/wordpool/WIFE.wav', 'audio/wordpool/WINDOW.wav', 'audio/wordpool/WITNESS.wav', 'audio/wordpool/WOMAN.wav', 'audio/wordpool/WORKER.wav', 'audio/wordpool/WORLD.wav', 'audio/wordpool/WRENCH.wav', 'audio/wordpool/WRIST.wav', 'audio/wordpool/XEROX.wav', 'audio/wordpool/YACHT.wav', 'audio/wordpool/YARN.wav', 'audio/wordpool/ZEBRA.wav', 'audio/wordpool/ZIPPER.wav', 'audio/wordpool/AudioTest/Test2.wav', 'audio/400Hz.wav'
+            '/static/audio/wordpool/ACTOR.wav', '/static/audio/wordpool/ACTRESS.wav', '/static/audio/wordpool/AGENT.wav', '/static/audio/wordpool/AIRPLANE.wav', '/static/audio/wordpool/AIRPORT.wav', '/static/audio/wordpool/ANKLE.wav', '/static/audio/wordpool/ANTLER.wav', '/static/audio/wordpool/APPLE.wav', '/static/audio/wordpool/APRON.wav', '/static/audio/wordpool/ARM.wav', '/static/audio/wordpool/ARMY.wav', '/static/audio/wordpool/ASIA.wav', '/static/audio/wordpool/ATLAS.wav', '/static/audio/wordpool/ATOM.wav', '/static/audio/wordpool/AUTHOR.wav', '/static/audio/wordpool/AWARD.wav', '/static/audio/wordpool/BABY.wav', '/static/audio/wordpool/BACKBONE.wav', '/static/audio/wordpool/BACON.wav', '/static/audio/wordpool/BADGE.wav', 
+            '/static/audio/wordpool/BALLOON.wav', '/static/audio/wordpool/BANJO.wav', '/static/audio/wordpool/BANK.wav', '/static/audio/wordpool/BANKER.wav', '/static/audio/wordpool/BANQUET.wav', '/static/audio/wordpool/BARLEY.wav', '/static/audio/wordpool/BARREL.wav', '/static/audio/wordpool/BASEMENT.wav', '/static/audio/wordpool/BATHTUB.wav', '/static/audio/wordpool/BEAKER.wav', '/static/audio/wordpool/BEAST.wav', '/static/audio/wordpool/BEAVER.wav', '/static/audio/wordpool/BEEF.wav', '/static/audio/wordpool/BELLY.wav', '/static/audio/wordpool/BIKE.wav', '/static/audio/wordpool/BINDER.wav', '/static/audio/wordpool/BISON.wav', '/static/audio/wordpool/BLACKBOARD.wav', '/static/audio/wordpool/BLADE.wav', '/static/audio/wordpool/BLENDER.wav',
+            '/static/audio/wordpool/BLOCKADE.wav', '/static/audio/wordpool/BLOUSE.wav', '/static/audio/wordpool/BLUEPRINT.wav', '/static/audio/wordpool/BODY.wav', '/static/audio/wordpool/BOUQUET.wav', '/static/audio/wordpool/BOX.wav', '/static/audio/wordpool/BOYFRIEND.wav', '/static/audio/wordpool/BRACES.wav', '/static/audio/wordpool/BRANCH.wav', '/static/audio/wordpool/BRANDY.wav', '/static/audio/wordpool/BREAST.wav', '/static/audio/wordpool/BRICK.wav', '/static/audio/wordpool/BRIEFCASE.wav', '/static/audio/wordpool/BROOK.wav', '/static/audio/wordpool/BROTHER.wav', '/static/audio/wordpool/BUBBLE.wav', '/static/audio/wordpool/BUCKET.wav', '/static/audio/wordpool/BUG.wav', '/static/audio/wordpool/BUGGY.wav', '/static/audio/wordpool/BULLET.wav',
+            '/static/audio/wordpool/BUNNY.wav', '/static/audio/wordpool/BUREAU.wav', '/static/audio/wordpool/BURGLAR.wav', '/static/audio/wordpool/BUTCHER.wav', '/static/audio/wordpool/CABBAGE.wav', '/static/audio/wordpool/CABIN.wav', '/static/audio/wordpool/CAFE.wav', '/static/audio/wordpool/CAMEL.wav', '/static/audio/wordpool/CANAL.wav', '/static/audio/wordpool/CANDY.wav', '/static/audio/wordpool/CANYON.wav', '/static/audio/wordpool/CAPTIVE.wav', '/static/audio/wordpool/CARRIAGE.wav', '/static/audio/wordpool/CARROT.wav', '/static/audio/wordpool/CASHEW.wav', '/static/audio/wordpool/CASHIER.wav', '/static/audio/wordpool/CASKET.wav', '/static/audio/wordpool/CATCHER.wav', '/static/audio/wordpool/CATTLE.wav', '/static/audio/wordpool/CELLAR.wav',
+            '/static/audio/wordpool/CHAMPAGNE.wav', '/static/audio/wordpool/CHAPEL.wav', '/static/audio/wordpool/CHAUFFEUR.wav', '/static/audio/wordpool/CHEMIST.wav', '/static/audio/wordpool/CHEST.wav', '/static/audio/wordpool/CHILD.wav', '/static/audio/wordpool/CHIPMUNK.wav', '/static/audio/wordpool/CHURCH.wav', '/static/audio/wordpool/CIGAR.wav', '/static/audio/wordpool/CITRUS.wav', '/static/audio/wordpool/CLAM.wav', '/static/audio/wordpool/CLAMP.wav', '/static/audio/wordpool/CLIMBER.wav', '/static/audio/wordpool/CLOCK.wav', '/static/audio/wordpool/CLOTHES.wav', '/static/audio/wordpool/CLOUD.wav', '/static/audio/wordpool/COBRA.wav', '/static/audio/wordpool/COCKTAIL.wav', '/static/audio/wordpool/COCOON.wav', '/static/audio/wordpool/COD.wav',
+            '/static/audio/wordpool/COFFEE.wav', '/static/audio/wordpool/COIN.wav', '/static/audio/wordpool/COLLEGE.wav', '/static/audio/wordpool/COMET.wav', '/static/audio/wordpool/COMPASS.wav', '/static/audio/wordpool/CONCERT.wav', '/static/audio/wordpool/CONTRACT.wav', '/static/audio/wordpool/CONVICT.wav', '/static/audio/wordpool/COOK.wav', '/static/audio/wordpool/COOKBOOK.wav', '/static/audio/wordpool/COSTUME.wav', '/static/audio/wordpool/COTTAGE.wav', '/static/audio/wordpool/COUCH.wav', '/static/audio/wordpool/COUNTRY.wav', '/static/audio/wordpool/COUNTY.wav', '/static/audio/wordpool/COUSIN.wav', '/static/audio/wordpool/COWBOY.wav', '/static/audio/wordpool/CRAB.wav', '/static/audio/wordpool/CRATER.wav', '/static/audio/wordpool/CRAYON.wav',
+            '/static/audio/wordpool/CREATURE.wav', '/static/audio/wordpool/CREVICE.wav', '/static/audio/wordpool/CRIB.wav', '/static/audio/wordpool/CRICKET.wav', '/static/audio/wordpool/CRITIC.wav', '/static/audio/wordpool/CROSS.wav', '/static/audio/wordpool/CROWN.wav', '/static/audio/wordpool/CRUTCH.wav', '/static/audio/wordpool/CUPBOARD.wav', '/static/audio/wordpool/CURTAIN.wav', '/static/audio/wordpool/CUSTARD.wav', '/static/audio/wordpool/CYCLONE.wav', '/static/audio/wordpool/DAISY.wav', '/static/audio/wordpool/DANCER.wav', '/static/audio/wordpool/DANDRUFF.wav', '/static/audio/wordpool/DASHBOARD.wav', '/static/audio/wordpool/DAUGHTER.wav', '/static/audio/wordpool/DENIM.wav', '/static/audio/wordpool/DENTIST.wav', '/static/audio/wordpool/DIME.wav',
+            '/static/audio/wordpool/DINER.wav', '/static/audio/wordpool/DIVER.wav', '/static/audio/wordpool/DOLPHIN.wav', '/static/audio/wordpool/DONKEY.wav', '/static/audio/wordpool/DONOR.wav', '/static/audio/wordpool/DORM.wav', '/static/audio/wordpool/DOUGHNUT.wav', '/static/audio/wordpool/DRAGON.wav', '/static/audio/wordpool/DRAWING.wav', '/static/audio/wordpool/DRESS.wav', '/static/audio/wordpool/DRESSER.wav', '/static/audio/wordpool/DRILL.wav', '/static/audio/wordpool/DRINK.wav', '/static/audio/wordpool/DRIVER.wav', '/static/audio/wordpool/DRUG.wav', '/static/audio/wordpool/DUST.wav', '/static/audio/wordpool/DUSTPAN.wav', '/static/audio/wordpool/EAGLE.wav', '/static/audio/wordpool/EGYPT.wav', '/static/audio/wordpool/ELBOW.wav',
+            '/static/audio/wordpool/EMPIRE.wav', '/static/audio/wordpool/EUROPE.wav', '/static/audio/wordpool/EXPERT.wav', '/static/audio/wordpool/EYELASH.wav', '/static/audio/wordpool/FARMER.wav', '/static/audio/wordpool/FEMALE.wav', '/static/audio/wordpool/FIDDLE.wav', '/static/audio/wordpool/FILM.wav', '/static/audio/wordpool/FINGER.wav', '/static/audio/wordpool/FIREMAN.wav', '/static/audio/wordpool/FIREPLACE.wav', '/static/audio/wordpool/FLAG.wav', '/static/audio/wordpool/FLASHLIGHT.wav', '/static/audio/wordpool/FLASK.wav', '/static/audio/wordpool/FLEET.wav', '/static/audio/wordpool/FLESH.wav', '/static/audio/wordpool/FLIPPER.wav', '/static/audio/wordpool/FLOWER.wav', '/static/audio/wordpool/FLUTE.wav', '/static/audio/wordpool/FOOT.wav',
+            '/static/audio/wordpool/FOOTBALL.wav', '/static/audio/wordpool/FOREHEAD.wav', '/static/audio/wordpool/FOREST.wav', '/static/audio/wordpool/FOX.wav', '/static/audio/wordpool/FRAGRANCE.wav', '/static/audio/wordpool/FRAME.wav', '/static/audio/wordpool/FRANCE.wav', '/static/audio/wordpool/FRECKLE.wav', '/static/audio/wordpool/FREEZER.wav', '/static/audio/wordpool/FRIEND.wav', '/static/audio/wordpool/FRUIT.wav', '/static/audio/wordpool/FUNGUS.wav', '/static/audio/wordpool/GALLON.wav', '/static/audio/wordpool/GANGSTER.wav', '/static/audio/wordpool/GARBAGE.wav', '/static/audio/wordpool/GARDEN.wav', '/static/audio/wordpool/GARLIC.wav', '/static/audio/wordpool/GAVEL.wav', '/static/audio/wordpool/GAZELLE.wav', '/static/audio/wordpool/GHETTO.wav',
+            '/static/audio/wordpool/GIFT.wav', '/static/audio/wordpool/GIRL.wav', '/static/audio/wordpool/GLASS.wav', '/static/audio/wordpool/GLOBE.wav', '/static/audio/wordpool/GLOVE.wav', '/static/audio/wordpool/GOBLIN.wav', '/static/audio/wordpool/GRAPE.wav', '/static/audio/wordpool/GRAVE.wav', '/static/audio/wordpool/GRAVEL.wav', '/static/audio/wordpool/GRILL.wav', '/static/audio/wordpool/GROUND.wav', '/static/audio/wordpool/GUARD.wav', '/static/audio/wordpool/GUITAR.wav', '/static/audio/wordpool/GYMNAST.wav', '/static/audio/wordpool/HAMPER.wav', '/static/audio/wordpool/HAND.wav', '/static/audio/wordpool/HANDBAG.wav', '/static/audio/wordpool/HARP.wav', '/static/audio/wordpool/HATCHET.wav', '/static/audio/wordpool/HAWK.wav',
+            '/static/audio/wordpool/HEADBAND.wav', '/static/audio/wordpool/HEART.wav', '/static/audio/wordpool/HEDGE.wav', '/static/audio/wordpool/HELMET.wav', '/static/audio/wordpool/HERO.wav', '/static/audio/wordpool/HIGHWAY.wav', '/static/audio/wordpool/HIKER.wav', '/static/audio/wordpool/HONEY.wav', '/static/audio/wordpool/HOOD.wav', '/static/audio/wordpool/HOOK.wav', '/static/audio/wordpool/HORNET.wav', '/static/audio/wordpool/HOSTESS.wav', '/static/audio/wordpool/HOUND.wav', '/static/audio/wordpool/HUMAN.wav', '/static/audio/wordpool/HUSBAND.wav', '/static/audio/wordpool/ICEBERG.wav', '/static/audio/wordpool/ICING.wav', '/static/audio/wordpool/IGLOO.wav', '/static/audio/wordpool/INFANT.wav', '/static/audio/wordpool/INMATE.wav',
+            '/static/audio/wordpool/ISLAND.wav', '/static/audio/wordpool/ITEM.wav', '/static/audio/wordpool/JAPAN.wav', '/static/audio/wordpool/JELLO.wav', '/static/audio/wordpool/JELLY.wav', '/static/audio/wordpool/JOURNAL.wav', '/static/audio/wordpool/JUDGE.wav', '/static/audio/wordpool/JUGGLER.wav', '/static/audio/wordpool/JUNGLE.wav', '/static/audio/wordpool/JURY.wav', '/static/audio/wordpool/KEEPER.wav', '/static/audio/wordpool/KETCHUP.wav', '/static/audio/wordpool/KIDNEY.wav', '/static/audio/wordpool/KITCHEN.wav', '/static/audio/wordpool/KLEENEX.wav', '/static/audio/wordpool/KNAPSACK.wav', '/static/audio/wordpool/KNIFE.wav', '/static/audio/wordpool/LABEL.wav', '/static/audio/wordpool/LACE.wav', '/static/audio/wordpool/LADY.wav',
+            '/static/audio/wordpool/LAGOON.wav', '/static/audio/wordpool/LAKE.wav', '/static/audio/wordpool/LAMP.wav', '/static/audio/wordpool/LAPEL.wav', '/static/audio/wordpool/LASER.wav', '/static/audio/wordpool/LAVA.wav', '/static/audio/wordpool/LEADER.wav', '/static/audio/wordpool/LEG.wav', '/static/audio/wordpool/LEOPARD.wav', '/static/audio/wordpool/LETTUCE.wav', '/static/audio/wordpool/LIGHTNING.wav', '/static/audio/wordpool/LILY.wav', '/static/audio/wordpool/LION.wav', '/static/audio/wordpool/LIPSTICK.wav', '/static/audio/wordpool/LIVER.wav', '/static/audio/wordpool/LIZARD.wav', '/static/audio/wordpool/LODGE.wav', '/static/audio/wordpool/LOFT.wav', '/static/audio/wordpool/LONDON.wav', '/static/audio/wordpool/LOVER.wav',
+            '/static/audio/wordpool/LUGGAGE.wav', '/static/audio/wordpool/LUMBER.wav', '/static/audio/wordpool/LUNCH.wav', '/static/audio/wordpool/MACHINE.wav', '/static/audio/wordpool/MAILBOX.wav', '/static/audio/wordpool/MAILMAN.wav', '/static/audio/wordpool/MAMMAL.wav', '/static/audio/wordpool/MAPLE.wav', '/static/audio/wordpool/MARINE.wav', '/static/audio/wordpool/MARKER.wav', '/static/audio/wordpool/MARKET.wav', '/static/audio/wordpool/MARROW.wav', '/static/audio/wordpool/MARS.wav', '/static/audio/wordpool/MARSH.wav', '/static/audio/wordpool/MASK.wav', '/static/audio/wordpool/MATCH.wav', '/static/audio/wordpool/MATTRESS.wav', '/static/audio/wordpool/MESSAGE.wav', '/static/audio/wordpool/MILDEW.wav', '/static/audio/wordpool/MILK.wav',
+            '/static/audio/wordpool/MISSILE.wav', '/static/audio/wordpool/MISTER.wav', '/static/audio/wordpool/MONEY.wav', '/static/audio/wordpool/MONSTER.wav', '/static/audio/wordpool/MOP.wav', '/static/audio/wordpool/MOTEL.wav', '/static/audio/wordpool/MOTOR.wav', '/static/audio/wordpool/MUFFIN.wav', '/static/audio/wordpool/MUMMY.wav', '/static/audio/wordpool/MUSTARD.wav', '/static/audio/wordpool/NAPKIN.wav', '/static/audio/wordpool/NECKLACE.wav', '/static/audio/wordpool/NEUTRON.wav', '/static/audio/wordpool/NIGHTGOWN.wav', '/static/audio/wordpool/NOMAD.wav', '/static/audio/wordpool/NOTEBOOK.wav', '/static/audio/wordpool/NOVEL.wav', '/static/audio/wordpool/NURSE.wav', '/static/audio/wordpool/OFFICE.wav', '/static/audio/wordpool/OINTMENT.wav',
+            '/static/audio/wordpool/OMELET.wav', '/static/audio/wordpool/ONION.wav', '/static/audio/wordpool/ORANGE.wav', '/static/audio/wordpool/ORCHID.wav', '/static/audio/wordpool/OUTDOORS.wav', '/static/audio/wordpool/OUTFIT.wav', '/static/audio/wordpool/OUTLAW.wav', '/static/audio/wordpool/OX.wav', '/static/audio/wordpool/OYSTER.wav', '/static/audio/wordpool/OZONE.wav', '/static/audio/wordpool/PACKAGE.wav', '/static/audio/wordpool/PADDING.wav', '/static/audio/wordpool/PADDLE.wav', '/static/audio/wordpool/PALACE.wav', '/static/audio/wordpool/PANTHER.wav', '/static/audio/wordpool/PAPER.wav', '/static/audio/wordpool/PARENT.wav', '/static/audio/wordpool/PARROT.wav', '/static/audio/wordpool/PARSLEY.wav', '/static/audio/wordpool/PARTNER.wav',
+            '/static/audio/wordpool/PASSAGE.wav', '/static/audio/wordpool/PASTA.wav', '/static/audio/wordpool/PASTRY.wav', '/static/audio/wordpool/PATIENT.wav', '/static/audio/wordpool/PATROL.wav', '/static/audio/wordpool/PEACH.wav', '/static/audio/wordpool/PEANUT.wav', '/static/audio/wordpool/PEBBLE.wav', '/static/audio/wordpool/PECAN.wav', '/static/audio/wordpool/PENGUIN.wav', '/static/audio/wordpool/PEPPER.wav', '/static/audio/wordpool/PERCH.wav', '/static/audio/wordpool/PERFUME.wav', '/static/audio/wordpool/PERMIT.wav', '/static/audio/wordpool/PIANO.wav', '/static/audio/wordpool/PICNIC.wav', '/static/audio/wordpool/PICTURE.wav', '/static/audio/wordpool/PIGEON.wav', '/static/audio/wordpool/PIGMENT.wav', '/static/audio/wordpool/PILOT.wav',
+            '/static/audio/wordpool/PIMPLE.wav', '/static/audio/wordpool/PISTOL.wav', '/static/audio/wordpool/PISTON.wav', '/static/audio/wordpool/PIZZA.wav', '/static/audio/wordpool/PLAID.wav', '/static/audio/wordpool/PLASTER.wav', '/static/audio/wordpool/PLATE.wav', '/static/audio/wordpool/PLAYGROUND.wav', '/static/audio/wordpool/PLAZA.wav', '/static/audio/wordpool/PLIERS.wav', '/static/audio/wordpool/PLUTO.wav', '/static/audio/wordpool/POCKET.wav', '/static/audio/wordpool/POET.wav', '/static/audio/wordpool/POISON.wav', '/static/audio/wordpool/POLICE.wav', '/static/audio/wordpool/POPCORN.wav', '/static/audio/wordpool/PORK.wav', '/static/audio/wordpool/PORTRAIT.wav', '/static/audio/wordpool/POSSUM.wav', '/static/audio/wordpool/POSTAGE.wav',
+            '/static/audio/wordpool/POWDER.wav', '/static/audio/wordpool/PREACHER.wav', '/static/audio/wordpool/PRIMATE.wav', '/static/audio/wordpool/PRINCESS.wav', '/static/audio/wordpool/PROTON.wav', '/static/audio/wordpool/PUDDING.wav', '/static/audio/wordpool/PUDDLE.wav', '/static/audio/wordpool/PUPPY.wav', '/static/audio/wordpool/QUAIL.wav', '/static/audio/wordpool/QUARTER.wav', '/static/audio/wordpool/QUEEN.wav', '/static/audio/wordpool/RABBIT.wav', '/static/audio/wordpool/RACKET.wav', '/static/audio/wordpool/RADISH.wav', '/static/audio/wordpool/RAFT.wav', '/static/audio/wordpool/RATTLE.wav', '/static/audio/wordpool/RAZOR.wav', '/static/audio/wordpool/REBEL.wav', '/static/audio/wordpool/RECEIPT.wav', '/static/audio/wordpool/RECORD.wav',
+            '/static/audio/wordpool/RELISH.wav', '/static/audio/wordpool/REPORT.wav', '/static/audio/wordpool/RIFLE.wav', '/static/audio/wordpool/RIVER.wav', '/static/audio/wordpool/ROBBER.wav', '/static/audio/wordpool/ROBIN.wav', '/static/audio/wordpool/ROBOT.wav', '/static/audio/wordpool/ROCKET.wav', '/static/audio/wordpool/ROD.wav', '/static/audio/wordpool/ROOSTER.wav', '/static/audio/wordpool/RUG.wav', '/static/audio/wordpool/RUST.wav', '/static/audio/wordpool/SADDLE.wav', '/static/audio/wordpool/SALAD.wav', '/static/audio/wordpool/SALMON.wav', '/static/audio/wordpool/SALT.wav', '/static/audio/wordpool/SANDWICH.wav', '/static/audio/wordpool/SAUSAGE.wav', '/static/audio/wordpool/SCALLOP.wav', '/static/audio/wordpool/SCALPEL.wav',
+            '/static/audio/wordpool/SCARECROW.wav', '/static/audio/wordpool/SCARF.wav', '/static/audio/wordpool/SCISSORS.wav', '/static/audio/wordpool/SCOTCH.wav', '/static/audio/wordpool/SCRIBBLE.wav', '/static/audio/wordpool/SCULPTURE.wav', '/static/audio/wordpool/SEAFOOD.wav', '/static/audio/wordpool/SEAGULL.wav', '/static/audio/wordpool/SEAL.wav', '/static/audio/wordpool/SERVANT.wav', '/static/audio/wordpool/SERVER.wav', '/static/audio/wordpool/SHARK.wav', '/static/audio/wordpool/SHELF.wav', '/static/audio/wordpool/SHELTER.wav', '/static/audio/wordpool/SHERIFF.wav', '/static/audio/wordpool/SHIRT.wav', '/static/audio/wordpool/SHORTCAKE.wav', '/static/audio/wordpool/SHORTS.wav', '/static/audio/wordpool/SHOULDER.wav', '/static/audio/wordpool/SHOVEL.wav',
+            '/static/audio/wordpool/SHRUB.wav', '/static/audio/wordpool/SIBLING.wav', '/static/audio/wordpool/SIDEWALK.wav', '/static/audio/wordpool/SILK.wav', '/static/audio/wordpool/SISTER.wav', '/static/audio/wordpool/SKETCH.wav', '/static/audio/wordpool/SKILLET.wav', '/static/audio/wordpool/SKIRT.wav', '/static/audio/wordpool/SLIDE.wav', '/static/audio/wordpool/SLIME.wav', '/static/audio/wordpool/SLOPE.wav', '/static/audio/wordpool/SLUG.wav', '/static/audio/wordpool/SMOG.wav', '/static/audio/wordpool/SNACK.wav', '/static/audio/wordpool/SNAIL.wav', '/static/audio/wordpool/SNAKE.wav', '/static/audio/wordpool/SODA.wav', '/static/audio/wordpool/SOFTBALL.wav', '/static/audio/wordpool/SPACE.wav', '/static/audio/wordpool/SPARROW.wav',
+            '/static/audio/wordpool/SPHINX.wav', '/static/audio/wordpool/SPIDER.wav', '/static/audio/wordpool/SPONGE.wav', '/static/audio/wordpool/SPOOL.wav', '/static/audio/wordpool/SPOON.wav', '/static/audio/wordpool/SPOUSE.wav', '/static/audio/wordpool/STALLION.wav', '/static/audio/wordpool/STAMP.wav', '/static/audio/wordpool/STAPLE.wav', '/static/audio/wordpool/STAR.wav', '/static/audio/wordpool/STATUE.wav', '/static/audio/wordpool/STICKER.wav', '/static/audio/wordpool/STOMACH.wav', '/static/audio/wordpool/STONE.wav', '/static/audio/wordpool/STOVE.wav', '/static/audio/wordpool/STREAM.wav', '/static/audio/wordpool/STUDENT.wav', '/static/audio/wordpool/SUBWAY.wav', '/static/audio/wordpool/SUITCASE.wav', '/static/audio/wordpool/SUMMIT.wav',
+            '/static/audio/wordpool/SUNRISE.wav', '/static/audio/wordpool/SUNSET.wav', '/static/audio/wordpool/SUPPER.wav', '/static/audio/wordpool/SURVEY.wav', '/static/audio/wordpool/SUSPECT.wav', '/static/audio/wordpool/SWAMP.wav', '/static/audio/wordpool/SWIMMER.wav', '/static/audio/wordpool/SWITCH.wav', '/static/audio/wordpool/SWORD.wav', '/static/audio/wordpool/TABLE.wav', '/static/audio/wordpool/TABLET.wav', '/static/audio/wordpool/TART.wav', '/static/audio/wordpool/TAXI.wav', '/static/audio/wordpool/TEACHER.wav', '/static/audio/wordpool/TEMPLE.wav', '/static/audio/wordpool/TERMITE.wav', '/static/audio/wordpool/THIEF.wav', '/static/audio/wordpool/THREAD.wav', '/static/audio/wordpool/TILE.wav', '/static/audio/wordpool/TOASTER.wav',
+            '/static/audio/wordpool/TOMBSTONE.wav', '/static/audio/wordpool/TORTOISE.wav', '/static/audio/wordpool/TOURIST.wav', '/static/audio/wordpool/TRACTOR.wav', '/static/audio/wordpool/TRANSPLANT.wav', '/static/audio/wordpool/TREAT.wav', '/static/audio/wordpool/TRENCH.wav', '/static/audio/wordpool/TRIBE.wav', '/static/audio/wordpool/TROMBONE.wav', '/static/audio/wordpool/TROUT.wav', '/static/audio/wordpool/TRUCK.wav', '/static/audio/wordpool/TUBA.wav', '/static/audio/wordpool/TUNNEL.wav', '/static/audio/wordpool/TURKEY.wav', '/static/audio/wordpool/TURNIP.wav', '/static/audio/wordpool/TURTLE.wav', '/static/audio/wordpool/TUTU.wav', '/static/audio/wordpool/TWEEZERS.wav', '/static/audio/wordpool/TWIG.wav', '/static/audio/wordpool/TWISTER.wav',
+            '/static/audio/wordpool/TYPIST.wav', '/static/audio/wordpool/ULCER.wav', '/static/audio/wordpool/UMPIRE.wav', '/static/audio/wordpool/UNCLE.wav', '/static/audio/wordpool/VAGRANT.wav', '/static/audio/wordpool/VALLEY.wav', '/static/audio/wordpool/VALVE.wav', '/static/audio/wordpool/VELVET.wav', '/static/audio/wordpool/VENUS.wav', '/static/audio/wordpool/VICTIM.wav', '/static/audio/wordpool/VIKING.wav', '/static/audio/wordpool/VIRUS.wav', '/static/audio/wordpool/WAGON.wav', '/static/audio/wordpool/WAITER.wav', '/static/audio/wordpool/WAITRESS.wav', '/static/audio/wordpool/WARDROBE.wav', '/static/audio/wordpool/WASHER.wav', '/static/audio/wordpool/WASP.wav', '/static/audio/wordpool/WHISKERS.wav', '/static/audio/wordpool/WHISTLE.wav',
+            '/static/audio/wordpool/WIDOW.wav', '/static/audio/wordpool/WIFE.wav', '/static/audio/wordpool/WINDOW.wav', '/static/audio/wordpool/WITNESS.wav', '/static/audio/wordpool/WOMAN.wav', '/static/audio/wordpool/WORKER.wav', '/static/audio/wordpool/WORLD.wav', '/static/audio/wordpool/WRENCH.wav', '/static/audio/wordpool/WRIST.wav', '/static/audio/wordpool/XEROX.wav', '/static/audio/wordpool/YACHT.wav', '/static/audio/wordpool/YARN.wav', '/static/audio/wordpool/ZEBRA.wav', '/static/audio/wordpool/ZIPPER.wav', '/static/audio/wordpool/AudioTest/Test2.wav', '/static/audio/400Hz.wav'
         ],
     });
 }
