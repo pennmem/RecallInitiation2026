@@ -58,6 +58,13 @@ function runExperiment() {
         };
     });
 
+    var fullscreen = {
+        type: 'fullscreen',
+        fullscreen_mode: true,
+    };
+    timeline.push(fullscreen);
+
+
     // Mike/Ricardo message
     var message = {
         type: "html-button-response",
