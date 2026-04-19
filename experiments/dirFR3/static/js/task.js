@@ -164,7 +164,7 @@ function runExperiment() {
 
   var sound_tone = {
     type: "audio-keyboard-response",
-    stimulus: "/audio/400Hz.wav",
+    stimulus: "audio/400Hz.wav",
     trial_duration: 500,
     choices: jsPsych.NO_KEYS,
     post_trial_gap: 1000,
@@ -172,7 +172,7 @@ function runExperiment() {
 
   var trial_audio = {
     type: "audio-keyboard-response",
-    stimulus: "/audio/wordpool/AudioTest/Test2.wav",
+    stimulus: "audio/wordpool/AudioTest/Test2.wav",
     choices: ["r", "c"],
     prompt:
       "<p>Adjust your volume so you can clearly hear the audio.</p> \
