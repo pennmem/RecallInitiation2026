@@ -1159,69 +1159,41 @@ function runExperiment() {
     trial_duration: 3500,
   };
 
-  var save_data_node = {
+  var save_and_redirect = {
     type: "call-function",
     async: true,
     func: function (done) {
-      jsPsych.data.addProperties({
-        l_length: list_length,
-        pres_rate: presentation_rate,
-        num_lists: num_lists,
-        session: 3,
-        replays: tot_replays,
-        prolific_pid: prolific_pid,
-        study_id: study_id,
-        session_id: session_id,
-        initiation_condition: initiation_condition,
-      });
-
-      saveData()
-        .then(function (response) {
-          if (!response.ok) {
-            throw new Error("Save failed");
-          }
-          done({ save_success: true });
-        })
-        .catch(function (error) {
-          console.error(error);
-          done({ save_success: false });
+        jsPsych.data.addProperties({
+            l_length: list_length,
+            pres_rate: presentation_rate,
+            num_lists: num_lists,
+            session: 3,           // change to 2, 3, 4 per file
+            replays: tot_replays,
+            prolific_pid: prolific_pid,
+            study_id: study_id,
+            session_id: session_id,
+            initiation_condition: initiation_condition,
         });
-    },
-  };
 
-  var save_failed_page = {
-    type: "html-button-response",
-    stimulus:
-      "<p>Oops! Your data could not be saved.</p><p>Please do not close this page. Press the button below to try again.</p>",
-    choices: ["Try Again"],
-  };
-
-  var save_failed_node = {
-    timeline: [save_failed_page, save_data_node],
-    conditional_function: function () {
-      var last = jsPsych.data.get().last(1).values()[0];
-      return last.save_success === false;
+        saveData()
+            .then(function (response) {
+                if (!response.ok) throw new Error("Save failed: " + response.status);
+                window.location.href = PROLIFIC_COMPLETE_URL;
+            })
+            .catch(function (error) {
+                console.error("Save error:", error);
+                document.body.innerHTML =
+                    '<div style="padding:40px;font-family:sans-serif;color:black;background:white;">' +
+                    '<h2>Your data could not be saved automatically.</h2>' +
+                    '<p>Please email <a href="mailto:kahanalab@gmail.com">kahanalab@gmail.com</a> with:</p>' +
+                    '<ul><li>Your Prolific ID: <b>' + prolific_pid + '</b></li>' +
+                    '<li>Error: ' + error.message + '</li></ul>' +
+                    '<p>Then enter the completion code <b>' + COMPLETION_CODE + '</b> on Prolific.</p>' +
+                    '</div>';
+                done();
+            });
     },
-  };
-
-  var redirect_to_prolific = {
-    type: "html-keyboard-response",
-    stimulus:
-      "<p>Your responses have been saved.</p><p>You will now be redirected to Prolific.</p>",
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 1000,
-    on_finish: function () {
-      window.location.href = PROLIFIC_COMPLETE_URL;
-    },
-  };
-
-  var redirect_node = {
-    timeline: [redirect_to_prolific],
-    conditional_function: function () {
-      var last = jsPsych.data.get().last(1).values()[0];
-      return last.save_success === true;
-    },
-  };
+};
 
   //timeline blocking: depends on if first list (recall instructions), last list (final page), or somewhere in between (ready page)
   var num_lists = 12; // just go with 12 lists
@@ -1254,9 +1226,7 @@ function runExperiment() {
     }
   }
 
-  timeline.push(save_data_node);
-  timeline.push(save_failed_node);
-  timeline.push(redirect_node);
+  timeline.push(save_and_redirect);
 
   jsPsych.init({
     timeline: timeline,
