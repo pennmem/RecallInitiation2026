@@ -13,7 +13,7 @@ var jsPsychUtils = {
         }
         let four_sess = {
             type: 'html-button-response',
-            stimulus:"<p>This task will involve doing four to five sessions over the course of multple weeks.</p>" +
+            stimulus:"<p>This task will involve doing five sessions over the course of multple weeks.</p>" +
             "<p>We ask those who participate in this task to confirm that they are "+
             "willing and able to participate fully in all the sessions.</p>" +
             "<p>Those who do participate in all the sessions will get paid an increasing amount for each session completed.</p>"+

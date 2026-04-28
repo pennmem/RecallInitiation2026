@@ -17,7 +17,7 @@ function runExperiment() {
                 prolific_pid: prolific_pid,
                 study_id: study_id,
                 session_id: session_id,
-                experiment: "dirFR1",
+                experiment: "dirFR",
                 table_name: "dirfr",
                 data: jsPsych.data.get().values()
             })
@@ -158,7 +158,7 @@ function runExperiment() {
         data: {type: 'age'},
         on_finish: function(data){
             var yrs = parseInt(data.response.Q0);
-            if (!isNaN(yrs) && yrs >= 18 && yrs <= 117) {
+            if (!isNaN(yrs) && yrs >= 18 && yrs <= 30) {
                 data.age = yrs;
                 age_valid = true;
             } else {
@@ -496,7 +496,13 @@ function runExperiment() {
         data: function(){
             srpos++;
             return {word: jsPsych.timelineVariable('word').toLowerCase(), serial_position: srpos, type: 'WORD', list: curr_list}
-        }
+        },
+        on_finish: function () {
+            document.querySelectorAll('audio').forEach(a => {
+                a.pause();
+                a.currentTime = 0;
+            });
+        },
     };
 
     // plays word if 'a' and 'l' pressed, loops if not (waiting for 'a' and 'l' to be pressed)
