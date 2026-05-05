@@ -26,6 +26,7 @@ def sort_by_condition(df, style='total_time'):
 
 # change repetitions serial position to 77
 def mark_repetitions(sp):
+    sp = np.array(sp, copy=True)
     used = []
     for u in range(len(sp)):
         count = 0
@@ -555,12 +556,13 @@ def intrusion_rates_sess(data, toggle):
     word_evs = data[data['type'] == 'WORD']
     rec_evs = data[data['type'] == 'REC_WORD']
     wl_dict = dict(zip([w.upper() for w in word_evs.word], word_evs.list))      # dictionary mapping words to list
+    lists = data.list.dropna().unique()
 
-    for i in data.list.unique():
-        sp = rec_evs[rec_evs['list'] == i].serial_position.to_numpy()    # current list serial positions
-        sp = sp[sp != 99]                                                # remove last null recall
-        r = rec_evs[rec_evs['list'] == i].rec_word.tolist()              # current list recalls
-        r = r[:len(sp)]                                                  # remove last null recall
+    for i in lists:
+        list_rec_evs = rec_evs[rec_evs['list'] == i]
+        list_rec_evs = list_rec_evs[list_rec_evs['serial_position'] != 99]
+        sp = list_rec_evs.serial_position.to_numpy()                     # current list serial positions
+        r = list_rec_evs.rec_word.tolist()                               # current list recalls
         
         sp = mark_repetitions(sp)         # change repetition serial position to 77
         
@@ -579,8 +581,8 @@ def intrusion_rates_sess(data, toggle):
                 else:
                     tot_eli += 1                        # ELI (not presented)
                     
-    eli_rate = tot_eli / len(data.list.unique())
-    pli_rate = tot_pli / len(data.list.unique() - subtract)
+    eli_rate = tot_eli / len(lists)
+    pli_rate = tot_pli / (len(lists) - subtract)
     
     return eli_rate, pli_rate
 
