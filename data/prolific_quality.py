@@ -29,6 +29,15 @@ def filter_sessions_by_quality(events, raw_events):
             & (raw_events['notes'].astype(str).str.lower() == 'true')
         ].shape[0] > 0
 
+        if took_notes:
+            print(f"Participant {pid} in session {sess} took notes.")
+        
+        if zero_correct_trials >= 2:
+            print(f"Participant {pid} in session {sess} had {zero_correct_trials} trials with zero correct recalls.")
+
+        if recall_prop > 0.95:
+            print(f"Participant {pid} in session {sess} had a recall proportion of {recall_prop:.2f}, which is above the threshold.")
+
         passes_quality = (
             zero_correct_trials < 2
             and recall_prop <= 0.95
