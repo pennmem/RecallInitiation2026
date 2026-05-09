@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+from rapidfuzz.distance import DamerauLevenshtein
 
 
 def clean_word(word):
     if pd.isna(word):
         return ''
-    word = str(word).strip()
+    word = str(word).strip().lower()
     if word.lower() == 'null':
         return ''
     return word
@@ -19,40 +20,6 @@ def assign_serial_position(recall, presented_words):
             return i + 1
 
     return 88
-
-
-def damerau_levenshtein_distance(a, b):
-    a = clean_word(a).lower()
-    b = clean_word(b).lower()
-
-    d = {}
-    len_a = len(a)
-    len_b = len(b)
-
-    for i in range(-1, len_a + 1):
-        d[(i, -1)] = i + 1
-    for j in range(-1, len_b + 1):
-        d[(-1, j)] = j + 1
-
-    for i in range(len_a):
-        for j in range(len_b):
-            cost = 0 if a[i] == b[j] else 1
-            d[(i, j)] = min(
-                d[(i - 1, j)] + 1,
-                d[(i, j - 1)] + 1,
-                d[(i - 1, j - 1)] + cost,
-            )
-
-            if (
-                i > 0
-                and j > 0
-                and a[i] == b[j - 1]
-                and a[i - 1] == b[j]
-            ):
-                d[(i, j)] = min(d[(i, j)], d[(i - 2, j - 2)] + 1)
-
-    return d[(len_a - 1, len_b - 1)]
-
 
 def correct_recall_spelling(recall, prior_words, current_words):
     recall = clean_word(recall)
@@ -71,13 +38,13 @@ def correct_recall_spelling(recall, prior_words, current_words):
     all_presented = np.concatenate([prior_words, current_words])[::-1]
 
     distances = np.array([
-        damerau_levenshtein_distance(recall, word)
+        DamerauLevenshtein.distance(recall, word)
         for word in all_presented
     ])
 
     close = np.where(distances <= 1)[0]
 
-    if len(close):
+    if len(close): # at least one word is within a distance of 1, so we can correct it
         corrected = all_presented[close[0]]
         return corrected, corrected.lower() != recall.lower()
 
@@ -96,14 +63,14 @@ def spellcheck_recalls_dl(
     events = events.copy()
     changed = 0
 
-    group_cols = [participant_col, session_col]
+    group_cols = [participant_col, session_col] # one row per participant-session
 
-    for _, session_data in events.groupby(group_cols):
+    for _, session_data in events.groupby(group_cols): # build mini dataframe for each participant-session
         for idx, row in session_data.iterrows():
             if row['type'] != 'REC_WORD':
                 continue
 
-            if row[serial_position_col] != 88:
+            if row[serial_position_col] != 88: # skip recalls that already have a valid serial position (i.e., not 88)
                 continue
 
             prior_words = session_data[
