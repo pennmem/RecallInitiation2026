@@ -12,13 +12,12 @@ COND_ORDER = ["primacy", "recency"]
 def rt_init_df(df, toggle=True):
     rt_init_rows = []
     for (pid, sess), data in df.groupby(["prolific_pid", "session"]):
-        ll = int(data["l_length"].dropna().iloc[0])
         cond = data["initiation_condition"].dropna().iloc[0]
         rt_init_rows.append({
             "prolific_pid": pid,
             "session": sess,
             "initiation_condition": cond,
-            "rt_init": rt_init_sess(data, ll, toggle=toggle),
+            "rt_init": rt_init_sess(data, toggle=toggle),
         })
     rt_init_df = pd.DataFrame(rt_init_rows)
     return rt_init_df
@@ -26,7 +25,7 @@ def rt_init_df(df, toggle=True):
 
 # average initial response time
 # toggle = True, only lists initiated with correct recall
-def rt_init_sess(data, ll, toggle=True):
+def rt_init_sess(data, toggle=True):
     rts = []
     rec_evs = data[data["type"] == "REC_WORD"]
 
@@ -35,7 +34,7 @@ def rt_init_sess(data, ll, toggle=True):
         rt = rec_evs[rec_evs["list"] == i].rt.to_numpy()
         if len(sp) > 1:  # always null recall at end of list
             if toggle:
-                if sp[0] > 0 and sp[0] <= ll:
+                if sp[0] > 0 and sp[0] <= 20:
                     rts.append(rt[0])
             else:
                 rts.append(rt[0])
