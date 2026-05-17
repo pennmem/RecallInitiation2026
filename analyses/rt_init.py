@@ -17,7 +17,7 @@ def rt_init_df(df, toggle=True):
             "prolific_pid": pid,
             "session": sess,
             "initiation_condition": cond,
-            "rt_init": rt_init_sess(data, toggle=toggle),
+            "rt_initial": rt_init_sess(data, toggle=toggle),
         })
     rt_init_df = pd.DataFrame(rt_init_rows)
     return rt_init_df
@@ -48,9 +48,9 @@ def rt_init_sess(data, toggle=True):
 def _rt_value_col(data):
     if "rt" in data.columns:
         return "rt"
-    if "rt_init" in data.columns:
-        return "rt_init"
-    raise ValueError("RT plot data must include either an 'rt' or 'rt_init' column.")
+    if "rt_initial" in data.columns:
+        return "rt_initial"
+    raise ValueError("RT plot data must include either an 'rt' or 'rt_initial' column.")
 
 
 def _prepare_plot_data(data):
@@ -74,10 +74,10 @@ def _hist_bins(data, value_col, bin_width, xlim):
 def _condition_means(rt_init_data):
     participant_df = (
         rt_init_data
-        .groupby(["prolific_pid", "initiation_condition"], as_index=False)["rt_init"]
+        .groupby(["prolific_pid", "initiation_condition"], as_index=False)["rt_initial"]
         .mean()
     )
-    return participant_df.groupby("initiation_condition")["rt_init"].mean()
+    return participant_df.groupby("initiation_condition")["rt_initial"].mean()
 
 
 def _plot_condition_hist(ax, data, value_col, bins):
@@ -99,7 +99,7 @@ def _plot_condition_hist(ax, data, value_col, bins):
 
 def rt_init_plot(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=250, xlim=(0, 20000)):
     plot_data, value_col = _prepare_plot_data(data)
-    if rt_init_data is None and value_col == "rt_init":
+    if rt_init_data is None and value_col == "rt_initial":
         rt_init_data = data
 
     fig, ax = plt.subplots(figsize=figsize)
@@ -127,7 +127,7 @@ def rt_init_plot(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=2
 
 def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=250, xlim=(0, 20000)):
     plot_data, value_col = _prepare_plot_data(data)
-    if rt_init_data is None and value_col == "rt_init":
+    if rt_init_data is None and value_col == "rt_initial":
         rt_init_data = data
 
     sessions = sorted(plot_data["session"].dropna().unique())
@@ -141,10 +141,10 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), 
     if rt_init_data is not None and len(rt_init_data) > 0:
         participant_df = (
             rt_init_data
-            .groupby(["session", "prolific_pid", "initiation_condition"], as_index=False)["rt_init"]
+            .groupby(["session", "prolific_pid", "initiation_condition"], as_index=False)["rt_initial"]
             .mean()
         )
-        session_means = participant_df.groupby(["session", "initiation_condition"])["rt_init"].mean()
+        session_means = participant_df.groupby(["session", "initiation_condition"])["rt_initial"].mean()
 
     for i, sess in enumerate(sessions):
         sess_ax = axes[i]

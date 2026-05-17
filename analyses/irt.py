@@ -72,8 +72,8 @@ def irt_final_sess(data, n_final=4):
         if len(irts) == 0:
             continue
 
-        final_irts = irts[-n_final:]
-        positions = np.arange(-len(final_irts), 0)
+        final_irts = irts[-(n_final + 1):]
+        positions = np.arange(-len(final_irts) + 1, 1)
         for pos, irt in zip(positions, final_irts):
             irt_rows.append({
                 "relative_output_position": pos,
@@ -108,6 +108,62 @@ def irt_final_df(df, n_final=4):
             "session",
             "initiation_condition",
             "relative_output_position",
+            "irt",
+        ],
+    )
+
+
+def irt_first_sess(data, n_first=4):
+    irt_rows = []
+    rec_evs = data[data["type"] == "REC_WORD"]
+
+    for i in data.list.dropna().unique():
+        sp, rt = _list_recall_arrays(rec_evs, i)
+        if len(sp) < 2:
+            continue
+
+        irts = []
+        for j in range(len(sp) - 1):
+            curr_correct = sp[j] != 88 and sp[j] != 77
+            next_correct = sp[j + 1] != 88 and sp[j + 1] != 77
+            if curr_correct and next_correct:
+                irts.append(rt[j + 1])
+
+        first_irts = irts[:n_first]
+        for pos, irt in enumerate(first_irts, start=1):
+            irt_rows.append({
+                "output_position": pos,
+                "irt": irt,
+            })
+
+    irt_first = pd.DataFrame(irt_rows)
+    if len(irt_first) == 0:
+        return pd.DataFrame(columns=["output_position", "irt"])
+
+    return irt_first.groupby("output_position", as_index=False)["irt"].mean()
+
+
+def irt_first_df(df, n_first=4):
+    irt_rows = []
+    for (pid, sess), data in df.groupby(["prolific_pid", "session"]):
+        cond = _session_condition(data)
+        irt_first = irt_first_sess(data, n_first=n_first)
+        for _, row in irt_first.iterrows():
+            irt_rows.append({
+                "prolific_pid": pid,
+                "session": sess,
+                "initiation_condition": cond,
+                "output_position": row.output_position,
+                "irt": row.irt,
+            })
+
+    return pd.DataFrame(
+        irt_rows,
+        columns=[
+            "prolific_pid",
+            "session",
+            "initiation_condition",
+            "output_position",
             "irt",
         ],
     )
@@ -185,7 +241,7 @@ def irt_tot_df(df):
     )
 
 
-def irt_final_plot(data, path=None, figsize=(5, 3)):
+def irt_final_plot(data, n_final=4, path=None, figsize=(5, 3)):
     plt.figure(figsize=figsize)
     ax = sns.lineplot(
         data=data,
@@ -198,9 +254,35 @@ def irt_final_plot(data, path=None, figsize=(5, 3)):
         err_style="bars",
         marker="o",
     )
+    
     plt.xlabel("Relative Output Position")
     plt.ylabel("Inter-Response Time (ms)")
-    plt.xticks([-4, -3, -2, -1])
+    plt.xticks(np.arange(-(n_final) + 1, 1, 1))
+    sns.despine()
+    _format_condition_legend(ax)
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(path, bbox_inches="tight")
+    plt.show()
+
+
+def irt_first_plot(data, n_first=4, path=None, figsize=(5, 3)):
+    plt.figure(figsize=figsize)
+    ax = sns.lineplot(
+        data=data,
+        x="output_position",
+        y="irt",
+        hue="initiation_condition",
+        hue_order=COND_ORDER,
+        palette=COND_PALETTE,
+        errorbar=("se", 1.96),
+        err_style="bars",
+        marker="o",
+    )
+
+    plt.xlabel("Output Position")
+    plt.ylabel("Inter-Response Time (ms)")
+    plt.xticks(np.arange(1, n_first + 1, 1))
     sns.despine()
     _format_condition_legend(ax)
     if path is not None:
@@ -224,7 +306,7 @@ def irt_tot_plot(data, path=None, figsize=(5, 3)):
     )
     plt.axhline(0, color="black", linestyle="dotted", linewidth=1)
     plt.xlabel("Correct Recalls (each half)")
-    plt.ylabel("Difference in Total Inter-Response Time (ms)")
+    plt.ylabel("Difference in Total IRT (ms)")
     sns.despine()
     _format_condition_legend(ax)
     if path is not None:
