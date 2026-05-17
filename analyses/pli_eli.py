@@ -82,33 +82,33 @@ def intrusion_rates(df):
     intr_data = pd.DataFrame(intr_data)
     return intr_data
 
-def intrusion_plots(data, path=None, figsize=(5, 3)):
-    plot_data = pd.melt(
-        data,
-        id_vars=["prolific_pid", "session", "initiation_condition"],
-        value_vars=["pli", "eli"],
-        var_name="intrusion_type",
-        value_name="rate",
-    )
-    plot_data["intrusion_type"] = plot_data["intrusion_type"].str.upper()
+def _plot_by_session(data, y, ylabel, path=None, figsize=(5, 3)):
     plt.figure(figsize=figsize)
     ax = sns.barplot(
-        data=plot_data,
-        x="initiation_condition",
-        y="rate",
-        hue="intrusion_type",
-        order=COND_ORDER,
-        hue_order=["PLI", "ELI"],
-        palette=['mediumseagreen', 'cadetblue'],
-        legend=True,
+        data=data,
+        x="session",
+        y=y,
+        hue="initiation_condition",
+        hue_order=COND_ORDER,
+        palette=COND_PALETTE,
+        errorbar=("se", 1.96),
     )
-    plt.xlabel("Initiation Condition")
-    plt.ylabel("PLI/ELIs per Trial")
-    plt.xticks(ticks=[0, 1], labels=[COND_LABELS["primacy"], COND_LABELS["recency"]])
+    plt.xlabel("Session")
+    plt.ylabel(ylabel)
     sns.despine()
-    ax.legend(title="")
+    handles, labels = ax.get_legend_handles_labels()
+    labels = [COND_LABELS.get(str(label), str(label)) for label in labels]
+    ax.legend(handles, labels, title="")
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(path, bbox_inches="tight")
     plt.show()
+
+
+def pli_plot_by_session(data, path=None, figsize=(5, 3)):
+    _plot_by_session(data, "pli", "PLIs per Trial", path=path, figsize=figsize)
+
+
+def eli_plot_by_session(data, path=None, figsize=(5, 3)):
+    _plot_by_session(data, "eli", "ELIs per Trial", path=path, figsize=figsize)
 

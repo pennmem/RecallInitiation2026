@@ -34,6 +34,7 @@ def mwr_plot(data, path=None, figsize=(5, 3)):
         data=data,
         x="initiation_condition",
         y="mwr",
+        order=["primacy", "recency"],
         palette=COND_PALETTE,
     )
     sns.stripplot(
@@ -41,6 +42,7 @@ def mwr_plot(data, path=None, figsize=(5, 3)):
         x="initiation_condition",
         y="mwr",
         hue="initiation_condition",
+        hue_order=["primacy", "recency"],
         palette=COND_PALETTE,
         alpha=0.5,
         jitter=False
@@ -48,7 +50,7 @@ def mwr_plot(data, path=None, figsize=(5, 3)):
     plt.xlabel("Initiation Condition")
     plt.ylabel("Mean Words Recalled")
     plt.ylim(0, None)
-    plt.xticks(ticks=[0, 1], labels=[COND_LABELS[c] for c in data['initiation_condition'].unique()])
+    plt.xticks(ticks=[0, 1], labels=['Primacy', 'Recency'])
     sns.despine()
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -63,6 +65,7 @@ def mwr_plot_by_session(data, path=None, figsize=(5, 3)):
         x="session",
         y="mwr",
         hue="initiation_condition",
+        hue_order=["primacy", "recency"],
         palette=COND_PALETTE,
         legend=True
     )
@@ -71,6 +74,7 @@ def mwr_plot_by_session(data, path=None, figsize=(5, 3)):
         x="session",
         y="mwr",
         hue="initiation_condition",
+        hue_order=["primacy", "recency"],
         palette=COND_PALETTE,
         alpha=0.5,
         jitter=False,
@@ -81,6 +85,7 @@ def mwr_plot_by_session(data, path=None, figsize=(5, 3)):
     plt.ylabel("Mean Words Recalled")
     plt.ylim(0, None)
     plt.xticks(ticks=range(len(order)), labels=order)
+    plt.legend(title="", shadow=True, loc="upper right")
     sns.despine()
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)

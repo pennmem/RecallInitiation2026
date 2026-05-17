@@ -125,7 +125,7 @@ def rt_init_plot(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=2
     plt.show()
 
 
-def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(9, 6), bin_width=250, xlim=(0, 20000)):
+def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=250, xlim=(0, 20000)):
     plot_data, value_col = _prepare_plot_data(data)
     if rt_init_data is None and value_col == "rt_init":
         rt_init_data = data
@@ -158,6 +158,7 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(9, 6), 
                     sess_ax.axvline(session_means[key], color=COND_PALETTE[cond], linestyle="dashed")
 
         sess_ax.set(title=f"Session {sess}", xlabel="", ylabel="", xlim=xlim)
+        sess_ax.tick_params(axis='x', labelsize=8)
         sess_ax.grid(True)
         sns.despine(ax=sess_ax)
 
@@ -168,9 +169,9 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(9, 6), 
     fig.supylabel("Proportion of Trials")
     handles, labels = axes[0].get_legend_handles_labels()
     if handles:
-        fig.legend(handles, labels, shadow=True, ncols=2, loc="upper center", bbox_to_anchor=(0.53, 1.02))
-
-    plt.tight_layout()
+        fig.legend(handles, labels, shadow=True, ncols=2,
+               loc="upper center", bbox_to_anchor=(0.53, 1.08))
+    plt.tight_layout(rect=(0, 0, 1, 0.96))
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(path, bbox_inches="tight")

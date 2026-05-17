@@ -42,6 +42,7 @@ def r1_intrusion_overall(df, path=None, figsize=(5, 3)):
         y='prop_wrong',
         palette=COND_PALETTE,
         order=['primacy', 'recency'])
+    plt.xticks(ticks=[0, 1], labels=[COND_LABELS["primacy"], COND_LABELS["recency"]])
     plt.xlabel("Initiation Condition")
     plt.ylabel("R1 Intrusion Probability")
     plt.ylim(0, None)
@@ -61,12 +62,18 @@ def r1_intrusion_plot(df, path=None, figsize=(5, 3)):
         y='prop_wrong',
         hue='initiation_condition',
         palette=COND_PALETTE,
-        hue_order=['primacy', 'recency']
+        hue_order=['primacy', 'recency'],
     )
     plt.xlabel("Session")
     plt.ylabel("R1 Intrusion Probability")
     plt.ylim(0, None)
     plt.xticks(ticks=[0, 1, 2, 3], labels=['1', '2', '3', '4'])
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(
+    handles,
+    [COND_LABELS[label] for label in labels],
+    title=""
+)
     sns.despine()
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)

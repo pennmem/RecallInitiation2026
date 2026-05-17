@@ -76,7 +76,7 @@ def pfr_plot(data, path=None, figsize=(5, 3)):
     plt.xlim(0, max_pos + 1)
     plt.ylim(0, 1)
     plt.xticks(np.arange(1, max_pos + 1, 1))
-    plt.legend(title="Initiation", shadow=True, loc="upper right")
+    plt.legend(title="", shadow=True, loc="upper right")
     sns.despine()
 
     if path is not None:
