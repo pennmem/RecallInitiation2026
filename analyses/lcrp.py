@@ -70,9 +70,9 @@ def lag_crp(df):
 
 # lag-CRP
 # full
-def plot_lcrp(lcrp_data, path=None):
+def plot_lcrp(lcrp_data, max_lag, path=None):
     # re-structure dataframe
-    lag_cols = [f"ln_{x}" for x in np.arange(7, 0, -1)] + [f"lp_{x}" for x in range(1, 8)]
+    lag_cols = [f"ln_{x}" for x in np.arange(max_lag, 0, -1)] + [f"lp_{x}" for x in range(1, max_lag+1)]
     participant_df = (
         lcrp_data
         .groupby(["prolific_pid", "initiation_condition"], as_index=False)[lag_cols]
@@ -92,7 +92,7 @@ def plot_lcrp(lcrp_data, path=None):
                     errorbar=('se', 1.96), legend=False)
 
     handles, _ = ax.get_legend_handles_labels()
-    ax.set(xlabel='Lag', xticks=np.linspace(-7, 7, 8), ylabel='Conditional Response Probability')
+    ax.set(xlabel='Lag', xticks=np.linspace(-max_lag, max_lag, max_lag + 1), ylabel='Conditional Response Probability')
     ax.spines[['right', 'top']].set_visible(False)
     labels = ['Primacy', 'Recency']
     fig.legend(handles, labels, shadow=True, ncols=3, loc='upper center', bbox_to_anchor=(0.53, 1.08))

@@ -12,7 +12,7 @@ def prim_rec_lr(row):
     prim_slope, prim_intercept, _, _, _ = scipy.stats.linregress(np.arange(1, 4), prim_spc)
     
     # recency effect
-    rec_spc = row[['sp_16', 'sp_17', 'sp_18']].astype(float)
+    rec_spc = row[['sp_18', 'sp_19', 'sp_20']].astype(float)
     rec_slope, rec_intercept, _, _, _ = scipy.stats.linregress(np.arange(1, 4), rec_spc)
     
     return pd.Series({
