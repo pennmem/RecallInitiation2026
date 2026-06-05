@@ -23,27 +23,71 @@ def rt_init_df(df, toggle=True):
     return rt_init_df
 
 
+def _initial_recall_rts(data, toggle=True):
+    rts = []
+    rec_evs = data[data["type"] == "REC_WORD"]
+    list_length = data["l_length"].dropna()
+    list_length = int(list_length.iloc[0]) if len(list_length) else 20
+
+    for i in data.list.dropna().unique():
+        list_rec_evs = rec_evs[rec_evs["list"] == i]
+        sp = list_rec_evs.serial_position.to_numpy()
+        rt = list_rec_evs.rt.to_numpy()
+        if len(sp) <= 1 or len(rt) == 0 or pd.isna(rt[0]):
+            continue
+
+        valid_first_recall = sp[0] > 0 and sp[0] <= list_length
+        if toggle and not valid_first_recall:
+            continue
+
+        rts.append((i, rt[0]))
+
+    return rts
+
+
 # average initial response time
 # toggle = True, only lists initiated with correct recall
 def rt_init_sess(data, toggle=True):
-    rts = []
-    rec_evs = data[data["type"] == "REC_WORD"]
-
-    for i in data.list.unique():
-        sp = rec_evs[rec_evs["list"] == i].serial_position.to_numpy()
-        rt = rec_evs[rec_evs["list"] == i].rt.to_numpy()
-        if len(sp) > 1:  # always null recall at end of list
-            if toggle:
-                if sp[0] > 0 and sp[0] <= 20:
-                    rts.append(rt[0])
-            else:
-                rts.append(rt[0])
+    rts = [rt for _, rt in _initial_recall_rts(data, toggle=toggle)]
 
     if len(rts) == 0:
         return np.nan
 
     rts = np.array(rts) - np.min(rts)  # subtract session minimum to approximate typing time
     return np.mean(rts)
+
+
+def rt_init_trial_df(df, toggle=True, subtract_session_min=True):
+    rt_rows = []
+    for (pid, sess), data in df.groupby(["prolific_pid", "session"]):
+        cond = data["initiation_condition"].dropna().iloc[0]
+        initial_rts = _initial_recall_rts(data, toggle=toggle)
+        if len(initial_rts) == 0:
+            continue
+
+        min_rt = min(rt for _, rt in initial_rts)
+        for list_num, rt in initial_rts:
+            rt_rows.append({
+                "prolific_pid": pid,
+                "session": sess,
+                "list": list_num,
+                "initiation_condition": cond,
+                "rt": rt - min_rt if subtract_session_min else rt,
+                "min_rt": rt == min_rt,
+            })
+
+    return pd.DataFrame(
+        rt_rows,
+        columns=[
+            "prolific_pid",
+            "session",
+            "list",
+            "initiation_condition",
+            "rt",
+            "min_rt",
+        ],
+    )
+
 
 def _rt_value_col(data):
     if "rt" in data.columns:
@@ -62,13 +106,17 @@ def _prepare_plot_data(data):
 
 
 def _hist_bins(data, value_col, bin_width, xlim):
-    if xlim is not None:
-        return np.arange(xlim[0], xlim[1] + bin_width, bin_width)
-
     max_rt = data[value_col].max()
     if pd.isna(max_rt):
         max_rt = bin_width
-    return np.arange(0, max_rt + bin_width, bin_width)
+    start = xlim[0] if xlim is not None else 0
+    return np.arange(start, max_rt + bin_width, bin_width)
+
+
+def _hist_ylabel(value_col):
+    if value_col == "rt_initial":
+        return "Proportion of Participant-Sessions"
+    return "Proportion of Trials"
 
 
 def _condition_means(rt_init_data):
@@ -86,11 +134,10 @@ def _plot_condition_hist(ax, data, value_col, bins):
         if len(cond_data) == 0:
             continue
 
-        weights = np.ones(len(cond_data)) / len(cond_data)
         ax.hist(
             cond_data[value_col],
             bins=bins,
-            weights=weights,
+            density=True,
             color=COND_PALETTE[cond],
             alpha=0.4,
             label=COND_LABELS[cond],
@@ -112,7 +159,7 @@ def rt_init_plot(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=2
             if cond in cond_means and not pd.isna(cond_means[cond]):
                 ax.axvline(cond_means[cond], color=COND_PALETTE[cond], linestyle="dashed")
 
-    ax.set(xlabel="Response Time (ms)", ylabel="Proportion of Trials", xlim=xlim)
+    ax.set(xlabel="Response Time (ms)", ylabel=_hist_ylabel(value_col), xlim=xlim)
     ax.grid(True)
     sns.despine(ax=ax)
     handles, labels = ax.get_legend_handles_labels()
@@ -135,7 +182,6 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), 
     n_rows = int(np.ceil(len(sessions) / n_cols)) if len(sessions) > 0 else 1
     fig, ax = plt.subplots(n_rows, n_cols, figsize=figsize, sharey=True, sharex=True)
     axes = np.array(ax).reshape(-1)
-    bins = _hist_bins(plot_data, value_col, bin_width, xlim)
 
     session_means = None
     if rt_init_data is not None and len(rt_init_data) > 0:
@@ -149,6 +195,7 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), 
     for i, sess in enumerate(sessions):
         sess_ax = axes[i]
         sess_data = plot_data[plot_data["session"] == sess]
+        bins = _hist_bins(sess_data, value_col, bin_width, xlim)
         _plot_condition_hist(sess_ax, sess_data, value_col, bins)
 
         if session_means is not None:
@@ -166,7 +213,7 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), 
         extra_ax.axis("off")
 
     fig.supxlabel("Response Time (ms)", x=0.53)
-    fig.supylabel("Proportion of Trials")
+    fig.supylabel(_hist_ylabel(value_col))
     handles, labels = axes[0].get_legend_handles_labels()
     if handles:
         fig.legend(handles, labels, shadow=True, ncols=2,
