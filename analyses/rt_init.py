@@ -114,8 +114,6 @@ def _hist_bins(data, value_col, bin_width, xlim):
 
 
 def _hist_ylabel(value_col):
-    if value_col == "rt_initial":
-        return "Proportion of Participant-Sessions"
     return "Proportion of Trials"
 
 
