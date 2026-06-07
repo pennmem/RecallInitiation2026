@@ -35,6 +35,7 @@ def mwr_plot(data, path=None, figsize=(5, 3)):
         x="initiation_condition",
         y="mwr",
         order=["primacy", "recency"],
+        alpha=0.7,
         palette=COND_PALETTE,
     )
     sns.stripplot(
@@ -66,6 +67,7 @@ def mwr_plot_by_session(data, path=None, figsize=(5, 3)):
         y="mwr",
         hue="initiation_condition",
         hue_order=["primacy", "recency"],
+        alpha=0.7,
         palette=COND_PALETTE,
         legend=True
     )

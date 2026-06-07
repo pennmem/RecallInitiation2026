@@ -66,6 +66,7 @@ def pfr_plot(data, path=None, figsize=(5, 3)):
         hue="condition_label",
         hue_order=["Primacy", "Recency"],
         palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]],
+        alpha=0.7,
         errorbar=("se", 1.96),
     )
 
