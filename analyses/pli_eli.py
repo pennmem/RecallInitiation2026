@@ -90,7 +90,8 @@ def _plot_by_session(data, y, ylabel, path=None, figsize=(5, 3)):
         y=y,
         hue="initiation_condition",
         hue_order=COND_ORDER,
-        palette=COND_PALETTE,
+        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]],
+        alpha=0.7,
         errorbar=("se", 1.96),
     )
     plt.xlabel("Session")

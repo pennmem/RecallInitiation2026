@@ -179,7 +179,7 @@ def tcl_h(df):
 def plot_tcl(tcl_data_bsa, path=None):
     _, ax = plt.subplots(figsize=(5,3))
     sns.barplot(tcl_data_bsa, x='initiation_condition', y='tcl', hue="initiation_condition", 
-                hue_order=['primacy', 'recency'], order=['primacy', 'recency'], palette=COND_PALETTE, errorbar=('se', 1.96), alpha=0.7, gap=0.1, legend=False)
+                hue_order=['primacy', 'recency'], order=['primacy', 'recency'], palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]], errorbar=('se', 1.96), alpha=0.7, gap=0.1, legend=False)
     ax.set(xlabel='Condition', ylabel='Temporal Clustering Score', ylim=(0.45, 1))
     ax.spines[['right', 'top']].set_visible(False)
     if path is not None:
@@ -195,7 +195,7 @@ def plot_tcl_h(tcl_h_data, path=None):
                   value_vars=['tcl_h1', 'tcl_h2'], var_name='half_label', value_name='tcl_h')
     plt.figure(figsize=(5, 3))
     ax = sns.pointplot(data=dfm, x='half_label', y='tcl_h', hue='initiation_condition', hue_order=["primacy", "recency"], 
-                    palette=COND_PALETTE, errorbar=('se', 1.96), alpha=0.7, )
+                    palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]], errorbar=('se', 1.96), alpha=0.7, )
     ax.set(xlabel='Position in Recall Sequence', ylabel='Temporal Clustering Score', ylim=(0.45, 1))
     ax.set_xticks([0, 1], labels=['Half 1', 'Half 2'])
     sns.despine()

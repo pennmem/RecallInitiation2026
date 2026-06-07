@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple"}
+
 # change repetitions serial position to 77
 def mark_repetitions(sp):
     sp = np.array(sp, copy=True)
@@ -104,7 +107,7 @@ def scl(df, wordpool, w2v_scores):
 def plot_scl(scl_data_bsa, path=None):
     fig, ax = plt.subplots(figsize=(5,3))
     sns.barplot(scl_data_bsa, x='initiation_condition', order=['primacy', 'recency'], y='scl', hue='initiation_condition', hue_order=['primacy', 'recency'], 
-                palette=['orange', 'purple'], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
+                palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
     ax.set(xlabel="Initiation Condition", ylabel="Semantic Clustering Score", ylim=(0.4,0.6))
     ax.set_xticks([0,1], labels=["Primacy", "Recency"])
     ax.spines[["right", "top"]].set_visible(False)

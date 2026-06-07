@@ -85,10 +85,10 @@ def plot_lcrp(lcrp_data, max_lag, path=None):
 
     fig, ax = plt.subplots(figsize=(5, 3))
     sns.lineplot(dfm.query("lag < 0"), x='lag', y='crp', hue='initiation_condition',
-                    hue_order=['primacy', 'recency'], palette=COND_PALETTE, alpha=0.7,
+                    hue_order=['primacy', 'recency'], palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]], alpha=0.7,
                     errorbar=('se', 1.96))
     sns.lineplot(dfm.query("lag > 0"), x='lag', y='crp', hue='initiation_condition',
-                    hue_order=['primacy', 'recency'], palette=COND_PALETTE, alpha=0.7,
+                    hue_order=['primacy', 'recency'], palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]], alpha=0.7,
                     errorbar=('se', 1.96), legend=False)
 
     handles, _ = ax.get_legend_handles_labels()
