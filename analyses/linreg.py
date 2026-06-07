@@ -8,12 +8,12 @@ from pathlib import Path
 # linear regression for primacy and recency effects
 def prim_rec_lr(row):
     # primacy effect
-    prim_spc = row[['sp_1', 'sp_2', 'sp_3']].astype(float)
-    prim_slope, prim_intercept, _, _, _ = scipy.stats.linregress(np.arange(1, 4), prim_spc)
+    prim_spc = row[['sp_1', 'sp_2', 'sp_3', 'sp_4', 'sp_5']].astype(float)
+    prim_slope, prim_intercept, _, _, _ = scipy.stats.linregress(np.arange(1, 6), prim_spc)
     
     # recency effect
-    rec_spc = row[['sp_18', 'sp_19', 'sp_20']].astype(float)
-    rec_slope, rec_intercept, _, _, _ = scipy.stats.linregress(np.arange(1, 4), rec_spc)
+    rec_spc = row[['sp_16', 'sp_17','sp_18', 'sp_19', 'sp_20']].astype(float)
+    rec_slope, rec_intercept, _, _, _ = scipy.stats.linregress(np.arange(1, 6), rec_spc)
     
     return pd.Series({
         'prolific_pid': row.prolific_pid,
