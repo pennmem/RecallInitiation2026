@@ -925,7 +925,7 @@ function runExperiment() {
           return (
             "<p>Recall the words you just heard. You MUST begin recall with a word from the " +
             direction +
-            " of the list.</p>"
+            " of the list. Press the Enter key or the Continue button to submit each word.</p>"
           );
         },
       },
@@ -1122,10 +1122,10 @@ function runExperiment() {
     type: "html-button-response",
     stimulus: function () {
       if (initiation_condition == "primacy") {
-        return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the <b>beginning</b> of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+        return "<p>You will now have 90 seconds to recall the words from the list you just heard. You MUST begin recall with a word from the <b>beginning</b> of the list.</p><p>After your first response, recall in any order.</p><p> Press the Enter key or the Continue button to submit each word.</p>";
       }
       if (initiation_condition == "recency") {
-        return "<p>You will now have 90 seconds to recall the words. You MUST begin recall with a word from the <b>end</b> of the list.</p><p>After your first response, recall in any order.</p><p>Type into the box and press the Enter key for each word.</p><p>Press the Start Recall button to begin recall.</p>";
+        return "<p>You will now have 90 seconds to recall the words from the list you just heard. You MUST begin recall with a word from the <b>end</b> of the list.</p><p>After your first response, recall in any order.</p><p> Press the Enter key or the Continue button to submit each word.</p>";
       }
     },
     choices: ["Start Recall"],
