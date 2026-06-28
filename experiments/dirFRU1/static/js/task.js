@@ -1079,8 +1079,7 @@ function runExperiment() {
     type: "survey-text",
     questions: [
       {
-        prompt:
-          "<p>Recall the words from the list you just heard.</p><p> Press the Enter key or the Continue button to submit each word.</p>",
+        prompt: "",
       },
     ],
     post_trial_gap: 1,
