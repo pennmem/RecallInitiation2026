@@ -44,6 +44,23 @@ function runExperiment() {
   }
   var initiation_condition = getConditionSync(prolific_pid);
 
+  // Directional recall instruction text. Returns "" in the "free" condition,
+  // where no direction is given. leadIn is the sentence opener, e.g. "You must".
+  function directionReminder(leadIn) {
+    if (initiation_condition == "free") {
+      return "";
+    }
+    var direction =
+      initiation_condition == "primacy" ? "<b>beginning</b>" : "<b>end</b>";
+    return (
+      "<p>" +
+      leadIn +
+      " begin recall with a word from the " +
+      direction +
+      " of the list. After your first recall, recall in any order.</p>"
+    );
+  }
+
   var timeline = [];
 
   var list_length = 20;
@@ -777,9 +794,13 @@ function runExperiment() {
   // attention check... give list of 5 words, they have to correctly recall 3 to continue with experiment
   var att_instructions = {
     type: "html-keyboard-response",
-    stimulus:
-      "<p>You will now hear a practice list of words and be asked to recall them.  This will prepare you for the rest of the experiment.</p>\
-        <p>Press any key to start the practice round.</p>",
+    stimulus: function () {
+      return (
+        "<p>You will now hear a practice list of words and be asked to recall them.  This will prepare you for the rest of the experiment.</p>" +
+        directionReminder("You must") +
+        "<p>Press any key to start the practice round.</p>"
+      );
+    },
     post_trial_gap: 1500,
   };
   timeline.push(att_instructions);
@@ -850,17 +871,8 @@ function runExperiment() {
     type: "survey-text",
     questions: [
       {
-        prompt: function () {
-          var direction =
-            initiation_condition == "primacy"
-              ? "<b>beginning</b>"
-              : "<b>end</b>";
-          return (
-            "<p>Recall the words you just heard. You MUST begin recall with a word from the " +
-            direction +
-            " of the list. Press the Enter key or the Continue button to submit each word.</p>"
-          );
-        },
+        prompt:
+          "<p>Recall the words one by one by typing them into the box provided. Press the Enter key or the Continue button after entering each word.</p>",
       },
     ],
     post_trial_gap: 1,
@@ -881,8 +893,10 @@ function runExperiment() {
         first_recall_checked = true;
         if (initiation_condition == "primacy") {
           started_correctly = serial_pos >= 1 && serial_pos <= 3;
-        } else {
+        } else if (initiation_condition == "recency") {
           started_correctly = serial_pos >= 3 && serial_pos <= 5;
+        } else {
+          started_correctly = true;
         }
       }
       att_trials++;
@@ -972,8 +986,13 @@ function runExperiment() {
 
   var start_experiment = {
     type: "html-button-response",
-    stimulus:
-      "<p>You are ready for the first list of words!</p><p>Press Start to proceed.</p>",
+    stimulus: function () {
+      return (
+        "<p>You are ready for the first list of words!</p>" +
+        directionReminder("Remember that you must") +
+        "<p>Press Start to proceed.</p>"
+      );
+    },
     choices: ["Start"],
     post_trial_gap: 1000,
   };
@@ -1046,20 +1065,8 @@ function runExperiment() {
     },
   };
 
-  //recall instructions appear before first recall period
-  var recall_instructions = {
-    type: "html-button-response",
-    stimulus: function () {
-      if (initiation_condition == "primacy") {
-        return "<p>You will now have 90 seconds to recall the words from the list you just heard. You MUST begin recall with a word from the <b>beginning</b> of the list.</p><p>After your first response, recall in any order.</p><p> Press the Enter key or the Continue button to submit each word.</p>";
-      }
-      if (initiation_condition == "recency") {
-        return "<p>You will now have 90 seconds to recall the words from the list you just heard. You MUST begin recall with a word from the <b>end</b> of the list.</p><p>After your first response, recall in any order.</p><p> Press the Enter key or the Continue button to submit each word.</p>";
-      }
-    },
-    choices: ["Start Recall"],
-    post_trial_gap: 500,
-  };
+  // A beep tone (sound_tone) plays after each list and before recall, in place
+  // of a "Start Recall" button, so the recall period begins automatically.
 
   //array of recalled words
   var rec_words = [];
@@ -1136,8 +1143,12 @@ function runExperiment() {
   //page that prompts participant to move onto next list, resets variables, empties arrays
   var ready = {
     type: "html-button-response",
-    stimulus:
-      "Press the Ready button when you are ready for the next list of words.",
+    stimulus: function () {
+      return (
+        "<p>Press the Ready button when you are ready for the next list of words.</p>" +
+        directionReminder("Remember that you must")
+      );
+    },
     choices: ["Ready"],
     post_trial_gap: 1000,
     on_finish: function (data) {
@@ -1222,7 +1233,7 @@ function runExperiment() {
       timeline.push(hold_keys_instructions);
       timeline.push(sound_tone);
       timeline.push(list_presentation);
-      timeline.push(recall_instructions);
+      timeline.push(sound_tone);
       timeline.push(recall_timer);
       timeline.push(recall_period);
       timeline.push(ready);
@@ -1230,7 +1241,7 @@ function runExperiment() {
       timeline.push(hold_keys_instructions);
       timeline.push(sound_tone);
       timeline.push(list_presentation);
-      timeline.push(recall_instructions);
+      timeline.push(sound_tone);
       timeline.push(recall_timer);
       timeline.push(recall_period);
       timeline.push(ready);
@@ -1238,7 +1249,7 @@ function runExperiment() {
       timeline.push(hold_keys_instructions);
       timeline.push(sound_tone);
       timeline.push(list_presentation);
-      timeline.push(recall_instructions);
+      timeline.push(sound_tone);
       timeline.push(recall_timer);
       timeline.push(recall_period);
       timeline.push(notes);
