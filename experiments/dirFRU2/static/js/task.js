@@ -180,7 +180,8 @@ function runExperiment() {
             <p>The next page will give you a refresher on how the experiment will run.</p>",
       "<p>In this experiment you will be presented with a list of words, which you will hear one after another.</p> \
             <p>Then, there will be a 90 second recall period where you will be asked to recall the words from the list \
-            by typing them into the recall box. You may be asked to recall them in a particular order.</p><p>This process of hearing a list of words and \
+            by typing them into the recall box. You will recall as many words as you can. \
+            Later, we will give you more instructions on how we want you to recall the words.</p><p>This process of hearing a list of words and \
             then recalling those words will repeat for 12 lists, all of different words.</p><p>Remember to recall words from \
             the immediately preceeding list during each recall period.</p>",
       "<p>Please do NOT write down words, as this experiment is trying to study human memory!</p> \
