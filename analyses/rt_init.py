@@ -4,9 +4,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple"}
-COND_ORDER = ["primacy", "recency"]
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_ORDER = ["primacy", "recency", "free"]
 
 
 def rt_init_df(df, toggle=True):
@@ -162,7 +162,7 @@ def rt_init_plot(data, rt_init_data=None, path=None, figsize=(5, 3), bin_width=2
     sns.despine(ax=ax)
     handles, labels = ax.get_legend_handles_labels()
     if handles:
-        ax.legend(handles, labels, shadow=True, ncols=2, loc="upper right")
+        ax.legend(handles, labels, shadow=True, ncols=len(COND_ORDER), loc="upper right")
 
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -214,7 +214,7 @@ def rt_init_plot_by_session(data, rt_init_data=None, path=None, figsize=(5, 3), 
     fig.supylabel(_hist_ylabel(value_col))
     handles, labels = axes[0].get_legend_handles_labels()
     if handles:
-        fig.legend(handles, labels, shadow=True, ncols=2,
+        fig.legend(handles, labels, shadow=True, ncols=len(COND_ORDER),
                loc="upper center", bbox_to_anchor=(0.53, 1.08))
     plt.tight_layout(rect=(0, 0, 1, 0.96))
     if path is not None:

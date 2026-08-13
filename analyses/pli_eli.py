@@ -4,9 +4,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple"}
-COND_ORDER = ["primacy", "recency"]
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_ORDER = ["primacy", "recency", "free"]
 
 
 # change repetitions serial position to 77
@@ -90,7 +90,7 @@ def _plot_by_session(data, y, ylabel, path=None, figsize=(5, 3)):
         y=y,
         hue="initiation_condition",
         hue_order=COND_ORDER,
-        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]],
+        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]],
         alpha=0.7,
         errorbar=("se", 1.96),
     )

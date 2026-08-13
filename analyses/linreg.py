@@ -27,9 +27,14 @@ def prim_rec_lr(row):
 
 
 def plot_linreg(spc_prim_rec_lr_all, path=None):
+    # average across sessions so each participant contributes one point
+    participant_df = spc_prim_rec_lr_all.groupby(
+        ['prolific_pid', 'initiation_condition'], as_index=False
+    )[['prim_slope', 'rec_slope']].mean()
+
     # reorganize dataframe
     dfm = pd.melt(
-        spc_prim_rec_lr_all,
+        participant_df,
         id_vars=['prolific_pid', 'initiation_condition'],
         value_vars=['prim_slope', 'rec_slope'],
         var_name='sp_region',
@@ -38,8 +43,8 @@ def plot_linreg(spc_prim_rec_lr_all, path=None):
 
     _, ax = plt.subplots(figsize=(5, 3))
 
-    cond_order = ['primacy', 'recency']
-    cond_labels = ['Primacy', 'Recency']
+    cond_order = ['primacy', 'recency', 'free']
+    cond_labels = ['Primacy', 'Recency', 'Free']
 
     sns.stripplot(
         dfm,

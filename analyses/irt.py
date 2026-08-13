@@ -4,9 +4,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple"}
-COND_ORDER = ["primacy", "recency"]
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_ORDER = ["primacy", "recency", "free"]
 
 
 # change repetitions serial position to 77
@@ -31,6 +31,13 @@ def mark_repetitions(sp):
 def _session_condition(data):
     cond = data["initiation_condition"].dropna()
     return cond.iloc[0] if len(cond) else np.nan
+
+
+def _participant_mean(data, value_col, x_col):
+    """Average across sessions so each participant contributes one point per x value."""
+    return data.groupby(
+        ["prolific_pid", "initiation_condition", x_col], as_index=False
+    )[value_col].mean()
 
 
 def _format_condition_legend(ax):
@@ -242,6 +249,7 @@ def irt_tot_df(df):
 
 
 def irt_final_plot(data, n_final=4, path=None, figsize=(5, 3)):
+    data = _participant_mean(data, "irt", "relative_output_position")
     plt.figure(figsize=figsize)
     ax = sns.lineplot(
         data=data,
@@ -267,6 +275,7 @@ def irt_final_plot(data, n_final=4, path=None, figsize=(5, 3)):
 
 
 def irt_first_plot(data, n_first=4, path=None, figsize=(5, 3)):
+    data = _participant_mean(data, "irt", "output_position")
     plt.figure(figsize=figsize)
     ax = sns.lineplot(
         data=data,
@@ -292,6 +301,7 @@ def irt_first_plot(data, n_first=4, path=None, figsize=(5, 3)):
 
 
 def irt_tot_plot(data, path=None, figsize=(5, 3)):
+    data = _participant_mean(data, "irt_delta", "ncr_bin")
     plt.figure(figsize=figsize)
     ax = sns.lineplot(
         data=data,

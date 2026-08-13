@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple"}
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
 
 
 def r1_intrusion_df(df):
@@ -35,6 +35,11 @@ def r1_intrusion_sess(data):
     return intr / (len(data.list.unique()) - subtract) if (len(data.list.unique()) - subtract) > 0 else np.nan
 
 def r1_intrusion_overall(df, path=None, figsize=(5, 3)):
+    # average across sessions so each participant contributes one point
+    df = df.groupby(
+        ['prolific_pid', 'initiation_condition'], as_index=False
+    )['prop_wrong'].mean()
+
     plt.figure(figsize=figsize)
     sns.barplot(
         data=df,
@@ -42,8 +47,8 @@ def r1_intrusion_overall(df, path=None, figsize=(5, 3)):
         y='prop_wrong',
         palette=COND_PALETTE,
         alpha=0.7,
-        order=['primacy', 'recency'])
-    plt.xticks(ticks=[0, 1], labels=[COND_LABELS["primacy"], COND_LABELS["recency"]])
+        order=['primacy', 'recency', 'free'])
+    plt.xticks(ticks=[0, 1, 2], labels=[COND_LABELS["primacy"], COND_LABELS["recency"], COND_LABELS["free"]])
     plt.xlabel("Initiation Condition")
     plt.ylabel("R1 Intrusion Probability")
     plt.ylim(0, None)
@@ -64,7 +69,7 @@ def r1_intrusion_plot(df, path=None, figsize=(5, 3)):
         hue='initiation_condition',
         palette=COND_PALETTE,
         alpha=0.7,
-        hue_order=['primacy', 'recency'],
+        hue_order=['primacy', 'recency', 'free'],
     )
     plt.xlabel("Session")
     plt.ylabel("R1 Intrusion Probability")

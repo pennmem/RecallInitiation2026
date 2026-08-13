@@ -93,6 +93,38 @@ function runExperiment() {
     }
   });
 
+  // Re-enforce fullscreen on any button click if the participant has exited it.
+  // requestFullscreen only works inside a user gesture, so we hook the click itself.
+  function isFullscreen() {
+    return !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    );
+  }
+  function enforceFullscreen(el) {
+    var req =
+      el.requestFullscreen ||
+      el.webkitRequestFullscreen ||
+      el.mozRequestFullScreen ||
+      el.msRequestFullscreen;
+    if (req) {
+      var p = req.call(el);
+      if (p && p.catch) p.catch(function () {});
+    }
+  }
+  document.addEventListener("click", function (e) {
+    if (
+      e.target &&
+      e.target.closest &&
+      e.target.closest(".jspsych-btn") &&
+      !isFullscreen()
+    ) {
+      enforceFullscreen(document.documentElement);
+    }
+  });
+
   var fullscreen = {
     type: "fullscreen",
     fullscreen_mode: true,
@@ -102,32 +134,21 @@ function runExperiment() {
   // Mike/Ricardo message
   var message = {
     type: "html-button-response",
-    stimulus: `
-        <div style="text-align:center; margin-bottom: 20px;">
-      </div>
-
-        <div style="text-align:left; line-height:1.5;">
-        <p>Dear Participant,</p>
-
-        <p>
-          The study you are about to begin will provide scientific data on how people learn and
-          remember information. It is very important that you pay attention throughout the task and follow
-          the instructions to the best of your ability. If you take notes, or otherwise disrupt the quality
-          of the data, then we will have to discard it, and you will not be invited to future experiments
-          produced by our laboratory. By analyzing your results, we will know whether you have provided us with valid
-          data, and this may impact your compensation at the end of the experiment, as well as your ability to participate
-          in our lab's future experiments. We ask that you find a quiet room where you can perform this task without
-          any interruptions. If you are willing and able to fulfill the requirements of this study as explained, click
-          the word 'Blue' below. Your data will be of great value to the scientific community and we thank you for your participation.
-        </p>
-
-        <p>
-          Sincerely,<br>
-          <i>Michael J. Kahana, Ph.D.</i><br>
-          Director of the Computational Memory Lab
-        </p>
-      </div>
-    `,
+    stimulus:
+      "<p style = 'text-align:left;'>Dear Participant,<br>\
+        The study you are about to begin will provide scientific data on how people learn and \
+        remember information. It is very important that you pay attention throughout the task and follow \
+        the instructions to the best of your ability. If you take notes, or otherwise disrupt the quality \
+        of the data, then we will have to discard it, and you will not be invited to future experiments \
+        produced by our laboratory. By analyzing your results, we will know whether you have provided us with valid \
+        data, and this may impact your compensation at the end of the experiment, as well as your ability to participate \
+        in our lab's future experiments. We ask that you find a quiet room where you can perform this task without \
+        any interruptions. Please make sure to silence notifications on your computer, phone and other electronic devices. \
+        If you are willing and able to fulfill the requirements of this study as explained, click \
+        the word 'Blue' below. Your data will be of great value to the scientific community and we thank you for your participation.<br>\
+        Sincerely,<br>\
+        <i>Michael J. Kahana, Ph.D.</i><br>\
+        Director of the Computational Memory Lab</p>",
     choices: ["Blue", "Orange"],
     on_finish: function (data) {
       var resp = data.response;
@@ -940,10 +961,15 @@ function runExperiment() {
     questions: [
       {
         prompt:
-          "<p>Recall the words one by one by typing them into the box provided. Press the Enter key or the Continue button after entering each word.</p>",
+          "<p>To recall the words, type each word you remember into the box \
+          provided and hit the return or enter key to advance to the next response. </p>",
       },
     ],
     post_trial_gap: 1,
+    on_load: function () {
+      var btn = document.getElementById("jspsych-survey-text-next");
+      if (btn) btn.remove();
+    },
     data: { type: "ATT_REC" },
     on_finish: function (data) {
       var att_recalled = (
@@ -1158,6 +1184,10 @@ function runExperiment() {
       },
     ],
     post_trial_gap: 1,
+    on_load: function () {
+      var btn = document.getElementById("jspsych-survey-text-next");
+      if (btn) btn.remove();
+    },
     data: function () {
       return { type: "REC_WORD", list: curr_list };
     },

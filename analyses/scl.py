@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple"}
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
 
 # change repetitions serial position to 77
 def mark_repetitions(sp):
@@ -104,12 +104,17 @@ def scl(df, wordpool, w2v_scores):
     return scl_data
 
 # semantic clustering score
-def plot_scl(scl_data_bsa, path=None):
+def plot_scl(scl_data, path=None):
+    # average across sessions so each participant contributes one point
+    scl_data_bsa = scl_data.groupby(
+        ['prolific_pid', 'initiation_condition'], as_index=False
+    )['scl'].mean()
+
     fig, ax = plt.subplots(figsize=(5,3))
-    sns.barplot(scl_data_bsa, x='initiation_condition', order=['primacy', 'recency'], y='scl', hue='initiation_condition', hue_order=['primacy', 'recency'], 
-                palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"]], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
+    sns.barplot(scl_data_bsa, x='initiation_condition', order=['primacy', 'recency', 'free'], y='scl', hue='initiation_condition', hue_order=['primacy', 'recency', 'free'], 
+                palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
     ax.set(xlabel="Initiation Condition", ylabel="Semantic Clustering Score", ylim=(0.4,0.6))
-    ax.set_xticks([0,1], labels=["Primacy", "Recency"])
+    ax.set_xticks([0,1,2], labels=["Primacy", "Recency", "Free"])
     ax.spines[["right", "top"]].set_visible(False)
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)

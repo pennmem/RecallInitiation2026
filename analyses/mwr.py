@@ -4,8 +4,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple"}
+COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
 
 def mwr(df):
     mwr_rows = []
@@ -29,12 +29,17 @@ def mwr_sess(data):
     return np.mean(list_recalls)
 
 def mwr_plot(data, path=None, figsize=(5, 3)):
+    # average across sessions so each bar/dot reflects one point per participant
+    data = data.groupby(
+        ["prolific_pid", "initiation_condition"], as_index=False
+    )["mwr"].mean()
+
     plt.figure(figsize=figsize)
     sns.barplot(
         data=data,
         x="initiation_condition",
         y="mwr",
-        order=["primacy", "recency"],
+        order=["primacy", "recency", "free"],
         alpha=0.7,
         palette=COND_PALETTE,
     )
@@ -43,7 +48,7 @@ def mwr_plot(data, path=None, figsize=(5, 3)):
         x="initiation_condition",
         y="mwr",
         hue="initiation_condition",
-        hue_order=["primacy", "recency"],
+        hue_order=["primacy", "recency", "free"],
         palette=COND_PALETTE,
         alpha=0.5,
         jitter=False
@@ -51,7 +56,7 @@ def mwr_plot(data, path=None, figsize=(5, 3)):
     plt.xlabel("Initiation Condition")
     plt.ylabel("Mean Words Recalled")
     plt.ylim(0, None)
-    plt.xticks(ticks=[0, 1], labels=['Primacy', 'Recency'])
+    plt.xticks(ticks=[0, 1, 2], labels=['Primacy', 'Recency', 'Free'])
     sns.despine()
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -66,7 +71,7 @@ def mwr_plot_by_session(data, path=None, figsize=(5, 3)):
         x="session",
         y="mwr",
         hue="initiation_condition",
-        hue_order=["primacy", "recency"],
+        hue_order=["primacy", "recency", "free"],
         alpha=0.7,
         palette=COND_PALETTE,
         legend=True
@@ -76,7 +81,7 @@ def mwr_plot_by_session(data, path=None, figsize=(5, 3)):
         x="session",
         y="mwr",
         hue="initiation_condition",
-        hue_order=["primacy", "recency"],
+        hue_order=["primacy", "recency", "free"],
         palette=COND_PALETTE,
         alpha=0.5,
         jitter=False,
