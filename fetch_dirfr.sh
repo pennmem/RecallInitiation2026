@@ -7,16 +7,18 @@
 set -e  # stop on any error
 
 TABLE="${1:-dirfru}"
+HOST="${HOST:-maint@cmlpsiturk.compmemlab.org}"
 LOCAL_DIR=~/RecallInitiation2026/data/data_storage
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${TABLE}_trials_${TIMESTAMP}.csv"
 
 mkdir -p "$LOCAL_DIR"
 
-echo "Running fetch on cmlpsiturk for table '$TABLE'..."
-ssh cmlpsiturk "python3 ~/fetch_table.py $TABLE"
+echo "Running fetch on ${HOST} for table '$TABLE'..."
+ssh "$HOST" "python3 ~/fetch_table.py $TABLE"
 
-echo "Copying CSV to local..."
-scp "cmlpsiturk:/home/maint/${TABLE}_trials.csv" "${LOCAL_DIR}/${FILENAME}"
+echo "Copying CSV to local (compressed)..."
+ssh "$HOST" "gzip -c ~/${TABLE}_trials.csv" | gunzip > "${LOCAL_DIR}/${FILENAME}"
 
 echo "Done. Saved to ${LOCAL_DIR}/${FILENAME}"
+echo "Rows: $(wc -l < "${LOCAL_DIR}/${FILENAME}")"

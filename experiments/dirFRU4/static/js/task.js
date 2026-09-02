@@ -881,7 +881,6 @@ function runExperiment() {
   var att_correct = 0;
   var att_trials = 0;
   var first_recall_checked = false;
-  var started_correctly = false;
   var att_time_left = true;
 
   var att_recall_length = 30000;
@@ -904,7 +903,7 @@ function runExperiment() {
       {
         prompt:
           "<p>To recall the words, type each word you remember into the box \
-          provided and hit the return or enter key to advance to the next response. </p>",
+          provided and hit the return or enter key before typing the next word. </p>",
       },
     ],
     post_trial_gap: 1,
@@ -924,16 +923,6 @@ function runExperiment() {
       var serial_pos = att_list.indexOf(att_recalled) + 1;
       if (att_list.indexOf(att_recalled) > -1) {
         att_correct++;
-      }
-      if (!first_recall_checked) {
-        first_recall_checked = true;
-        if (initiation_condition == "primacy") {
-          started_correctly = serial_pos >= 1 && serial_pos <= 3;
-        } else if (initiation_condition == "recency") {
-          started_correctly = serial_pos >= 3 && serial_pos <= 5;
-        } else {
-          started_correctly = true;
-        }
       }
       att_trials++;
     },
@@ -958,7 +947,7 @@ function runExperiment() {
   var pass_att = {
     type: "html-keyboard-response",
     stimulus:
-      "<p>Well done. You have passed the attention check. Press any key to continue.</p>",
+      "<p>Well done. You have passed the attention check.</p>"+ directionReminder("Remember, you must") + "<p>Press any key to continue.</p>",
   };
 
   var cont_att = {
@@ -987,7 +976,7 @@ function runExperiment() {
   var pass_node = {
     timeline: [pass_att],
     conditional_function: function () {
-      if (att_correct >= 3 && started_correctly) {
+      if (att_correct >= 3) {
         return true;
       } else {
         return false;
@@ -999,7 +988,7 @@ function runExperiment() {
   var cont_node = {
     timeline: [cont_att],
     conditional_function: function () {
-      if (att_correct == 2 && started_correctly) {
+      if (att_correct == 2) {
         return true;
       } else {
         return false;
@@ -1011,7 +1000,7 @@ function runExperiment() {
   var fail_node = {
     timeline: [fail_att],
     conditional_function: function () {
-      if (att_correct < 2 || !started_correctly) {
+      if (att_correct < 2) {
         return true;
       } else {
         return false;
