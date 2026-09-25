@@ -145,19 +145,6 @@ def _plot_overall(data, y, ylabel, path=None, figsize=(5, 3)):
         gap=0.1,
         legend=False,
     )
-    sns.stripplot(
-        data=participant_df,
-        x="initiation_condition",
-        y=y,
-        order=COND_ORDER,
-        hue="initiation_condition",
-        hue_order=COND_ORDER,
-        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]],
-        alpha=0.5,
-        jitter=False,
-        legend=False,
-        ax=ax,
-    )
     ax.set(xlabel="Initiation Condition", ylabel=ylabel, ylim=(0, None))
     ax.set_xticks([0, 1, 2], labels=[COND_LABELS[c] for c in COND_ORDER])
     ax.spines[["right", "top"]].set_visible(False)
