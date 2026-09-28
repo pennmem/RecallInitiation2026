@@ -1,6 +1,50 @@
 import pandas as pd
 
 
+def dedupe_replayed_sessions(
+    raw_events,
+    participant_col='prolific_pid',
+    session_col='session',
+    session_id_col='session_id',
+    row_id_col='row_id',
+):
+    """Some participants complete an entire session twice under the same session
+    number (e.g. a redo after a technical issue), leaving two distinct session_ids
+    logged as the same (participant, session). Downstream code groups only by
+    (participant, session), so without this the two independent runs get merged
+    together - e.g. spellcheck_recalls_dl and lag_crp_sess/tcl_sess can then see
+    duplicate/out-of-range serial positions from the second run's word list.
+
+    Keeps the session_id with the most rows (ties broken by the larger row_id,
+    i.e. the more recently logged run) and drops the other run(s) entirely.
+    """
+    raw_events = raw_events.copy()
+    nunique = raw_events.groupby([participant_col, session_col])[session_id_col].transform('nunique')
+    dup_rows = raw_events[nunique > 1]
+
+    if dup_rows.empty:
+        return raw_events
+
+    drop_index = []
+    for (pid, sess), group in dup_rows.groupby([participant_col, session_col]):
+        stats = group.groupby(session_id_col).agg(
+            n=(session_id_col, 'size'),
+            last_row=(row_id_col, 'max'),
+        ).sort_values(['n', 'last_row'], ascending=False)
+
+        keep_id = stats.index[0]
+        drop_ids = [sid for sid in stats.index if sid != keep_id]
+
+        print(
+            f"Participant {pid} session {sess}: found {len(stats)} session_ids "
+            f"{list(stats.index)}; keeping {keep_id} ({stats.loc[keep_id, 'n']} rows), "
+            f"dropping {drop_ids}."
+        )
+        drop_index.extend(group[group[session_id_col].isin(drop_ids)].index)
+
+    return raw_events.drop(index=drop_index)
+
+
 def filter_sessions_by_quality(events, raw_events):
     passing_sessions = []
 
