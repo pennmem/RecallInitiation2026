@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
 
 # probability of first recall
 def pfr(df):

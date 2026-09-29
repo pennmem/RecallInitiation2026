@@ -5,7 +5,7 @@ import seaborn as sns
 from pathlib import Path
 
 COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
 
 # change repetitions serial position to 77
 def mark_repetitions(sp):

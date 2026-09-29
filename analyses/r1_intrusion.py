@@ -5,7 +5,7 @@ import seaborn as sns
 from pathlib import Path
 
 COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
 
 
 def r1_intrusion_df(df):

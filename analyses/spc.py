@@ -7,7 +7,7 @@ import seaborn as sns
 
 COND_ORDER = ["primacy", "recency", "free"]
 COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "green"}
+COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
 
 # compute serial position curve (SPC) for each session and condition
 def spc_df(df):
