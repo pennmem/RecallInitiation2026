@@ -5,9 +5,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_ORDER = ["primacy", "recency", "free"]
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "dimgray"}
+COND_ORDER = ["start", "end", "free"]
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "dimgray"}
 
 # compute serial position curve (SPC) for each session and condition
 def spc_df(df):
@@ -65,8 +65,8 @@ def spc_plot(data, path=None, figsize=(5, 3)):
         x="serial_position",
         y="recall_probability",
         hue="condition_label",
-        hue_order=["Primacy", "Recency", "Free"],
-        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]],
+        hue_order=["Start", "End", "Free"],
+        palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]],
         # errorbar=("se", 1.96),
     )
 

@@ -4,9 +4,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
-COND_ORDER = ["primacy", "recency", "free"]
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
+COND_ORDER = ["start", "end", "free"]
 
 
 def rt_init_df(df, toggle=True):

@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
 
 # change repetitions serial position to 77
 def mark_repetitions(sp):
@@ -111,10 +111,10 @@ def plot_scl(scl_data, path=None):
     )['scl'].mean()
 
     fig, ax = plt.subplots(figsize=(5,3))
-    sns.barplot(scl_data_bsa, x='initiation_condition', order=['primacy', 'recency', 'free'], y='scl', hue='initiation_condition', hue_order=['primacy', 'recency', 'free'], 
-                palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
+    sns.barplot(scl_data_bsa, x='initiation_condition', order=['start', 'end', 'free'], y='scl', hue='initiation_condition', hue_order=['start', 'end', 'free'], 
+                palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
     ax.set(xlabel="Initiation Condition", ylabel="Semantic Clustering Score", ylim=(0.4,0.6))
-    ax.set_xticks([0,1,2], labels=["Primacy", "Recency", "Free"])
+    ax.set_xticks([0,1,2], labels=["Start", "End", "Free"])
     ax.spines[["right", "top"]].set_visible(False)
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)

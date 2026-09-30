@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
 
 
 def r1_intrusion_df(df):
@@ -47,8 +47,8 @@ def r1_intrusion_overall(df, path=None, figsize=(5, 3)):
         y='prop_wrong',
         palette=COND_PALETTE,
         alpha=0.7,
-        order=['primacy', 'recency', 'free'])
-    plt.xticks(ticks=[0, 1, 2], labels=[COND_LABELS["primacy"], COND_LABELS["recency"], COND_LABELS["free"]])
+        order=['start', 'end', 'free'])
+    plt.xticks(ticks=[0, 1, 2], labels=[COND_LABELS["start"], COND_LABELS["end"], COND_LABELS["free"]])
     plt.xlabel("Initiation Condition")
     plt.ylabel("R1 Intrusion Probability")
     plt.ylim(0, None)
@@ -69,7 +69,7 @@ def r1_intrusion_plot(df, path=None, figsize=(5, 3)):
         hue='initiation_condition',
         palette=COND_PALETTE,
         alpha=0.7,
-        hue_order=['primacy', 'recency', 'free'],
+        hue_order=['start', 'end', 'free'],
     )
     plt.xlabel("Session")
     plt.ylabel("R1 Intrusion Probability")

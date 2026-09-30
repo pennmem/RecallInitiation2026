@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-COND_ORDER = ["primacy", "recency", "free"]
+COND_ORDER = ["start", "end", "free"]
 
 # All pairwise contrasts, in a fixed order. `free` is the uninstructed baseline,
-# so the two baseline contrasts come first and primacy-vs-recency last.
+# so the two baseline contrasts come first and start-vs-end last.
 COND_PAIRS = [
-    ("primacy", "free"),
-    ("recency", "free"),
-    ("primacy", "recency"),
+    ("start", "free"),
+    ("end", "free"),
+    ("start", "end"),
 ]
 
 

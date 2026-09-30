@@ -5,8 +5,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
 
 # probability of first recall
 def pfr(df):
@@ -64,8 +64,8 @@ def pfr_plot(data, path=None, figsize=(5, 3)):
         x="serial_position",
         y="first_recall_probability",
         hue="condition_label",
-        hue_order=["Primacy", "Recency", "Free"],
-        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]],
+        hue_order=["Start", "End", "Free"],
+        palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]],
         alpha=0.7,
         errorbar=("se", 1.96),
     )

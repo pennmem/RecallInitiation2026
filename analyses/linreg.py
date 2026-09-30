@@ -43,8 +43,8 @@ def plot_linreg(spc_prim_rec_lr_all, path=None):
 
     _, ax = plt.subplots(figsize=(5, 3))
 
-    cond_order = ['primacy', 'recency', 'free']
-    cond_labels = ['Primacy', 'Recency', 'Free']
+    cond_order = ['start', 'end', 'free']
+    cond_labels = ['Start', 'End', 'Free']
 
     sns.stripplot(
         dfm,

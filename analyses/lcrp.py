@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
 
 # change repetitions serial position to 77
 def mark_repetitions(sp):
@@ -85,16 +85,16 @@ def plot_lcrp(lcrp_data, max_lag, path=None):
 
     fig, ax = plt.subplots(figsize=(5, 3))
     sns.lineplot(dfm.query("lag < 0"), x='lag', y='crp', hue='initiation_condition',
-                    hue_order=['primacy', 'recency', 'free'], palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]], alpha=0.7,
+                    hue_order=['start', 'end', 'free'], palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], alpha=0.7,
                     errorbar=('se', 1.96))
     sns.lineplot(dfm.query("lag > 0"), x='lag', y='crp', hue='initiation_condition',
-                    hue_order=['primacy', 'recency', 'free'], palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]], alpha=0.7,
+                    hue_order=['start', 'end', 'free'], palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], alpha=0.7,
                     errorbar=('se', 1.96), legend=False)
 
     handles, _ = ax.get_legend_handles_labels()
     ax.set(xlabel='Lag', xticks=np.linspace(-max_lag, max_lag, max_lag + 1), ylabel='Conditional Response Probability')
     ax.spines[['right', 'top']].set_visible(False)
-    labels = ['Primacy', 'Recency', 'Free']
+    labels = ['Start', 'End', 'Free']
     fig.legend(handles, labels, shadow=True, ncols=3, loc='upper center', bbox_to_anchor=(0.53, 1.08))
     plt.tight_layout()
     if path is not None:

@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path 
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
 
 # change repetitions serial position to 77
 def mark_repetitions(sp):
@@ -184,7 +184,7 @@ def plot_tcl(tcl_data, path=None):
 
     _, ax = plt.subplots(figsize=(5,3))
     sns.barplot(tcl_data_bsa, x='initiation_condition', y='tcl', hue="initiation_condition", 
-                hue_order=['primacy', 'recency', 'free'], order=['primacy', 'recency', 'free'], palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]], errorbar=('se', 1.96), alpha=0.7, gap=0.1, legend=False)
+                hue_order=['start', 'end', 'free'], order=['start', 'end', 'free'], palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], errorbar=('se', 1.96), alpha=0.7, gap=0.1, legend=False)
     ax.set(xlabel='Condition', ylabel='Temporal Clustering Score', ylim=(0.45, 1))
     ax.spines[['right', 'top']].set_visible(False)
     if path is not None:
@@ -199,8 +199,8 @@ def plot_tcl_h(tcl_h_data, path=None):
     dfm = pd.melt(participant_df, id_vars=['prolific_pid', 'initiation_condition'],
                   value_vars=['tcl_h1', 'tcl_h2'], var_name='half_label', value_name='tcl_h')
     plt.figure(figsize=(5, 3))
-    ax = sns.pointplot(data=dfm, x='half_label', y='tcl_h', hue='initiation_condition', hue_order=["primacy", "recency", "free"], 
-                    palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]], errorbar=('se', 1.96), alpha=0.7, )
+    ax = sns.pointplot(data=dfm, x='half_label', y='tcl_h', hue='initiation_condition', hue_order=["start", "end", "free"], 
+                    palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], errorbar=('se', 1.96), alpha=0.7, )
     ax.set(xlabel='Position in Recall Sequence', ylabel='Temporal Clustering Score', ylim=(0.45, 1))
     ax.set_xticks([0, 1], labels=['Half 1', 'Half 2'])
     sns.despine()

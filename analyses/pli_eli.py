@@ -4,9 +4,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-COND_LABELS = {"primacy": "Primacy", "recency": "Recency", "free": "Free"}
-COND_PALETTE = {"primacy": "orange", "recency": "purple", "free": "darkgray"}
-COND_ORDER = ["primacy", "recency", "free"]
+COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
+COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
+COND_ORDER = ["start", "end", "free"]
 
 
 # change repetitions serial position to 77
@@ -101,7 +101,7 @@ def _plot_by_session(data, y, ylabel, path=None, figsize=(5, 3)):
         y=y,
         hue="initiation_condition",
         hue_order=COND_ORDER,
-        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]],
+        palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]],
         alpha=0.7,
         errorbar=("se", 1.96),
     )
@@ -139,7 +139,7 @@ def _plot_overall(data, y, ylabel, path=None, figsize=(5, 3)):
         order=COND_ORDER,
         hue="initiation_condition",
         hue_order=COND_ORDER,
-        palette=[COND_PALETTE["primacy"], COND_PALETTE["recency"], COND_PALETTE["free"]],
+        palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]],
         alpha=0.7,
         errorbar=("se", 1.96),
         gap=0.1,
