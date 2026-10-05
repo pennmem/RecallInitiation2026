@@ -78,11 +78,13 @@ def intrusion_rates_sess(data, toggle=True):
 
     return eli_rate, pli_rate
 
-def intrusion_rates(df):
+def intrusion_rates(df, toggle=True):
+    """toggle=True (default, used in the paper): only lists initiated with a correct
+    recall. toggle=False: all lists, including R1 intrusions (robustness check)."""
     intr_data = []
     for (pid, sess), data in df.groupby(['prolific_pid', 'session']):
         cond = data['initiation_condition'].dropna().iloc[0]
-        eli, pli = intrusion_rates_sess(data)
+        eli, pli = intrusion_rates_sess(data, toggle=toggle)
         intr_data.append({
             "prolific_pid": pid,
             "session": sess,
