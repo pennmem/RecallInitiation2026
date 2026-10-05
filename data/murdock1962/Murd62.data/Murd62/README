@@ -1,0 +1,15 @@
+MURDOCK 1962
+
+The format of the data in these files is serial position as a function
+of output position. Each row of data corresponds to one
+subject=trial. For example, if the data were: 
+
+20 19 18 15 1 5 8 
+
+that means that the subject recalled item 20, then item
+19, etc.  
+
+The code 88 means that the subject made an extra-list
+intrusion
+
+ 
