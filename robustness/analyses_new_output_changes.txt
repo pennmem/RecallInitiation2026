@@ -1,0 +1,931 @@
+###  # Loads the most recent pulled CSV file from data/data_storage 
+-Loaded data/data_storage/dirfru_trials_20260927_132706.csv
++Loaded data/data_storage/dirfru_trials_20261005_152130.csv
+###  # Manual Exclusion
+-Before exclusion: 397740 rows
+-After exclusion: 397740 rows
++Before exclusion: 398247 rows
++
++After exclusion: 398247 rows
+###  # Deduplicate replayed sessions (same prolific_pid+session logged unde
+-Before dedup: 397740 rows
++Before dedup: 398247 rows
+-After dedup: 397264 rows
++After dedup: 397771 rows
+###  df = spellcheck_recalls_dl(df) # add spellcheck following original stu
+-Damerau-Levenshtein spellcheck corrected 4241 recall(s).
++{'filler_removed': 1460, 'filler_participants': 17, 'filler_max_from_one_participant': 1151, 'multiword_removed': 114, 'multiword_participants': 45, 'annotation_stripped
++
++Damerau-Levenshtein spellcheck corrected 4150 recall(s).
+###  df_before_quality = df.copy()
++
++
++
++
++
++
+###  # Metadata Inspection
+-238017 rows across 194 participants, 685 sessions
+-Condition breakdown by session: {'primacy': 248, 'recency': 232, 'free': 205}
++236894 rows across 194 participants, 686 sessions
++Condition breakdown by session: {'primacy': 248, 'recency': 232, 'free': 206}
+-Session 4     90
++Session 4     91
+###  from scipy import stats
+-mean (p1 plus) = 7.417
+-T-statistic = -0.508
+-P-value = 0.6144
++mean (p1 plus) = 7.416
++T-statistic = -0.506
++P-value = 0.6157
+###  filtered_p0ids = df[df['session'] == 0]['prolific_pid'].unique()
+-Sessions included: 454
++Sessions included: 455
+###  # Recall probability at each serial position, overall (pooled across c
+-2     0.489
++2     0.490
+-7     0.270
++7     0.271
+-10    0.261
++10    0.260
+-12    0.277
++12    0.278
+-15    0.309
++15    0.310
+-19    0.720
++19    0.721
+###  # Recall probability at each serial position, by condition
+-1                0.889  0.530  0.506
+-2                0.618  0.427  0.421
++1                0.889  0.530  0.507
++2                0.618  0.427  0.423
+-5                0.302  0.307  0.291
++5                0.302  0.307  0.290
+-7                0.262  0.276  0.272
+-8                0.230  0.281  0.271
++7                0.262  0.276  0.274
++8                0.229  0.281  0.273
+-10               0.243  0.268  0.271
+-11               0.247  0.294  0.266
+-12               0.258  0.285  0.290
++10               0.243  0.268  0.270
++11               0.247  0.294  0.267
++12               0.258  0.285  0.291
+-14               0.255  0.329  0.289
+-15               0.267  0.326  0.335
+-16               0.278  0.379  0.387
+-17               0.338  0.498  0.490
+-18               0.446  0.643  0.642
+-19               0.573  0.805  0.785
+-20               0.786  0.951  0.887
++14               0.255  0.329  0.290
++15               0.267  0.326  0.337
++16               0.278  0.379  0.388
++17               0.338  0.498  0.489
++18               0.446  0.643  0.640
++19               0.573  0.805  0.784
++20               0.786  0.950  0.888
+###  participant_curves = spc_df.groupby(['prolific_pid', 'initiation_condi
+-0                start  spc_asymmetry  one_sample  42  1.640072  1.086414e-01   
+-1                  end  spc_asymmetry  one_sample  43 -9.060536  1.959083e-11   
+-2                 free  spc_asymmetry  one_sample  40 -6.226115  2.513167e-07   
++0                start  spc_asymmetry  one_sample  42  1.631167  1.105140e-01   
++1                  end  spc_asymmetry  one_sample  43 -9.061790  1.951477e-11   
++2                 free  spc_asymmetry  one_sample  40 -6.229884  2.483075e-07   
+-0   41  0.253069  1.086414e-01  
+-1   42 -1.381719  5.877250e-11  
+-2   39 -0.984435  5.026335e-07  
++0   41  0.251695  1.105140e-01  
++1   42 -1.381910  5.854430e-11  
++2   39 -0.985031  4.966149e-07  
+###  stat_tests.one_sample(linreg_df, ["prim_slope", "rec_slope"])
+-0                start  prim_slope  one_sample  42 -18.193187  3.041895e-21   
+-1                start   rec_slope  one_sample  42  15.222812  1.802682e-18   
+-2                  end  prim_slope  one_sample  43  -6.483258  8.009584e-08   
+-3                  end   rec_slope  one_sample  43  15.730887  3.273121e-19   
+-4                 free  prim_slope  one_sample  40  -7.557109  3.727912e-09   
+-5                 free   rec_slope  one_sample  40  16.264841  5.679958e-19   
++0                start  prim_slope  one_sample  42 -18.101281  3.660748e-21   
++1                start   rec_slope  one_sample  42  15.213306  1.842497e-18   
++2                  end  prim_slope  one_sample  43  -6.484612  7.973756e-08   
++3                  end   rec_slope  one_sample  43  15.686648  3.622658e-19   
++4                 free  prim_slope  one_sample  40  -7.621196  3.053631e-09   
++5                 free   rec_slope  one_sample  40  16.211899  6.347814e-19   
+-0   41 -2.807270  1.825137e-20  
+-1   41  2.348931  5.408047e-18  
+-2   42 -0.988688  8.009584e-08  
+-3   42  2.398938  1.636561e-18  
+-4   39 -1.194884  7.455824e-09  
+-5   39  2.571697  2.271983e-18  
++0   41 -2.793088  2.196449e-20  
++1   41  2.347464  5.527490e-18  
++2   42 -0.988894  7.973756e-08  
++3   42  2.392191  1.811329e-18  
++4   39 -1.205017  6.107263e-09  
++5   39  2.563326  2.539125e-18  
+###  stat_tests.condition_contrast(linreg_df, ["prim_slope", "rec_slope"], 
+-0  prim_slope  welch  start vs free   42   40  40 -8.009739  7.779290e-12   
+-1  prim_slope  welch    end vs free   43   40  40 -0.110372  9.123924e-01   
+-2  prim_slope  welch   start vs end   42   43  42 -7.206398  2.541742e-10   
+-3   rec_slope  welch  start vs free   42   40  40 -0.379918  7.050133e-01   
+-4   rec_slope  welch    end vs free   43   40  40  1.267132  2.087814e-01   
+-5   rec_slope  welch   start vs end   42   43  42 -1.601698  1.130606e-01   
++0  prim_slope  welch  start vs free   42   40  40 -7.906445  1.239449e-11   
++1  prim_slope  welch    end vs free   43   40  40 -0.043334  9.655440e-01   
++2  prim_slope  welch   start vs end   42   43  42 -7.200179  2.598867e-10   
++3   rec_slope  welch  start vs free   42   40  40 -0.361383  7.187658e-01   
++4   rec_slope  welch    end vs free   43   40  40  1.266843  2.088841e-01   
++5   rec_slope  welch   start vs end   42   43  42 -1.584802  1.168539e-01   
+-0  79.932818 -1.766165  4.667574e-11  
+-1  79.507575 -0.024061  1.000000e+00  
+-2  82.024313 -1.560928  1.270871e-09  
+-3  79.996025 -0.083818  1.000000e+00  
+-4  80.066859  0.276525  6.263442e-01  
+-5  82.155981 -0.346964  4.522426e-01  
++0  79.928903 -1.743353  7.436696e-11  
++1  79.618848 -0.009449  1.000000e+00  
++2  82.131019 -1.559695  1.299433e-09  
++3  79.997103 -0.079731  1.000000e+00  
++4  80.069013  0.276463  6.266522e-01  
++5  82.141216 -0.343301  4.674154e-01  
+###  # average sessions within participant-condition first
+-0                  end  0.022578  0.976292
+-1                 free  0.168816  0.581414
+-2                start  0.930205  0.036245
++0                  end  0.022578  0.975646
++1                 free  0.168816  0.580331
++2                start  0.929114  0.037337
+###  # Mean words recalled, averaged within participant first, then across 
+-end                   8.123062  2.820266  0.430087  43
+-free                  7.891146  2.347119  0.371112  40
+-start                 7.647652  2.427096  0.374509  42
++end                   8.121932  2.820406  0.430108  43
++free                  7.899653  2.360663  0.373254  40
++start                 7.647156  2.425755  0.374302  42
+###  stat_tests.condition_contrast(mwr_df, ["mwr"], paired=False)
+-0     mwr  welch  start vs free   42   40  40 -0.461828  0.645459  79.979797   
+-1     mwr  welch    end vs free   43   40  40  0.408256  0.684176  80.040987   
+-2     mwr  welch   start vs end   42   43  42 -0.833627  0.406921  81.713912   
++0     mwr  welch  start vs free   42   40  40 -0.477669  0.634189  79.960587   
++1     mwr  welch    end vs free   43   40  40  0.390317  0.697338  80.135424   
++2     mwr  welch   start vs end   42   43  42 -0.832690  0.407447  81.701959   
+-0 -0.101947         1.0  
+-1  0.089088         1.0  
+-2 -0.180531         1.0  
++0 -0.105460         1.0  
++1  0.085191         1.0  
++2 -0.180327         1.0  
+###  mwr_sess = mwr_df[mwr_df['session'] == 4]
+-0     mwr  welch  start vs free   33   26  26  0.878831  0.383207  56.628154   
+-1     mwr  welch    end vs free   31   26  26  0.040312  0.967994  53.661469   
+-2     mwr  welch   start vs end   33   31  31  0.866861  0.389380  61.641735   
++0     mwr  welch  start vs free   33   27  27  0.613111  0.542222  57.470651   
++1     mwr  welch    end vs free   31   27  27 -0.229118  0.819637  54.388609   
++2     mwr  welch   start vs end   33   31  31  0.870964  0.387153  61.644475   
+-0  0.226042         1.0  
+-1  0.010700         1.0  
+-2  0.215865         1.0  
++0  0.157366         1.0  
++1 -0.060447         1.0  
++2  0.216888         1.0  
+###  # Does MWR change across sessions on average, adjusting for condition-
+-No. Observations:              454                  Method:                          REML     
+-No. Groups:                    125                  Scale:                           0.9429   
+-Min. group size:               2                    Log-Likelihood:                  -831.0292
++No. Observations:              455                  Method:                          REML     
++No. Groups:                    125                  Scale:                           0.9453   
++Min. group size:               2                    Log-Likelihood:                  -833.1327
+-Intercept                                            7.713    0.407 18.964 0.000  6.916  8.511
+-C(initiation_condition, Treatment('free'))[T.end]    0.211    0.560  0.377 0.706 -0.886  1.308
+-C(initiation_condition, Treatment('free'))[T.start] -0.254    0.563 -0.452 0.651 -1.358  0.849
+-session_c                                            0.141    0.043  3.264 0.001  0.056  0.226
+-Group Var                                            6.216    1.004                           
++Intercept                                            7.714    0.407 18.940 0.000  6.916  8.513
++C(initiation_condition, Treatment('free'))[T.end]    0.202    0.560  0.360 0.719 -0.896  1.300
++C(initiation_condition, Treatment('free'))[T.start] -0.263    0.564 -0.466 0.641 -1.367  0.842
++session_c                                            0.146    0.043  3.390 0.001  0.062  0.231
++Group Var                                            6.233    1.005                           
+###  # Does the practice effect (session slope) differ by condition?
+-No. Observations:                  454                     Method:                             REML     
+-No. Groups:                        125                     Scale:                              0.9289   
+-Min. group size:                   2                       Log-Likelihood:                     -830.4145
++No. Observations:                  455                     Method:                             REML     
++No. Groups:                        125                     Scale:                              0.9335   
++Min. group size:                   2                       Log-Likelihood:                     -832.9369
+-Intercept                                                      7.917    0.415 19.067 0.000  7.103  8.730
+-C(initiation_condition, Treatment('free'))[T.end]             -0.019    0.577 -0.033 0.973 -1.150  1.111
+-C(initiation_condition, Treatment('free'))[T.start]           -0.615    0.580 -1.061 0.289 -1.752  0.521
+-session_c                                                     -0.020    0.078 -0.249 0.803 -0.173  0.134
+-session_c:C(initiation_condition, Treatment('free'))[T.end]    0.181    0.107  1.690 0.091 -0.029  0.390
+-session_c:C(initiation_condition, Treatment('free'))[T.start]  0.277    0.107  2.602 0.009  0.068  0.486
+-Group Var                                                      6.224    1.013                           
++Intercept                                                      7.902    0.416 19.005 0.000  7.087  8.717
++C(initiation_condition, Treatment('free'))[T.end]             -0.006    0.578 -0.011 0.991 -1.138  1.126
++C(initiation_condition, Treatment('free'))[T.start]           -0.603    0.581 -1.038 0.299 -1.741  0.535
++session_c                                                     -0.001    0.078 -0.011 0.991 -0.153  0.152
++session_c:C(initiation_condition, Treatment('free'))[T.end]    0.162    0.107  1.522 0.128 -0.047  0.371
++session_c:C(initiation_condition, Treatment('free'))[T.start]  0.260    0.106  2.444 0.015  0.052  0.468
++Group Var                                                      6.242    1.013                           
+###  summary = (
+-free                  0.041962  0.062697
+-start                 0.058602  0.079554
++free                  0.041080  0.060976
++start                 0.058065  0.079667
+###  stat_tests.condition_contrast(r1_intrusion_data, ["prop_wrong"], paire
+-0  prop_wrong  welch  start vs free   42   40  40  1.664516  0.099998   
+-1  prop_wrong  welch    end vs free   43   40  40 -0.917525  0.361602   
+-2  prop_wrong  welch   start vs end   42   43  42  2.518434  0.013788   
++0  prop_wrong  welch  start vs free   42   40  40  1.699632  0.093205   
++1  prop_wrong  welch    end vs free   43   40  40 -0.859275  0.392727   
++2  prop_wrong  welch   start vs end   42   43  42  2.464315  0.015882   
+-0  78.456923  0.366029    0.199997  
+-1  80.687153 -0.201474    0.361602  
+-2  79.756555  0.547523    0.041365  
++0  77.612244  0.373430    0.186410  
++1  80.922650 -0.188467    0.392727  
++2  79.605247  0.535789    0.047645  
+###  for sess in range(1,5):
+-Session 3 - Primacy: = 0.059
++Session 3 - Primacy: = 0.057
+###  rt_init_df.groupby("initiation_condition")["rt_initial"].agg(mean="mea
+-end                   1322.923790  1267.703188
+-free                  1574.142163  1617.009210
+-start                 2852.981067  2982.468496
++end                   1323.165299  1268.054809
++free                  1574.493893  1616.368195
++start                 2890.906972  3058.293265
+###  stat_tests.condition_contrast(rt_init_df, ["rt_initial"], paired=False
+-0  rt_initial  welch  start vs free   42   40  40  2.958009  0.004433   
+-1  rt_initial  welch    end vs free   43   40  40 -0.357931  0.721326   
+-2  rt_initial  welch   start vs end   42   43  42  3.175760  0.002355   
++0  rt_initial  welch  start vs free   42   40  40  2.973672  0.004255   
++1  rt_initial  welch    end vs free   43   40  40 -0.368266  0.713636   
++2  rt_initial  welch   start vs end   42   43  42  3.196653  0.002226   
+-0  59.659663  0.643520    0.008866  
+-1  80.948901 -0.078489    0.721326  
+-2  60.316657  0.693854    0.007065  
++0  59.083791  0.646755    0.008509  
++1  80.932693 -0.080767    0.713636  
++2  59.588457  0.698533    0.006677  
+###  plieli_recency = plieli_df[plieli_df['initiation_condition']=='end']
+-Recency ELI: 1.4811692878148575
++Recency ELI: 0.9773206751054851
+-Primacy ELI: 0.5384545920029792
++Primacy ELI: 0.5358446213284923
+###  stat_tests.condition_contrast(plieli_df, ['pli','eli'], paired=False)
+-0     pli  welch  start vs free   42   40  40 -2.166357  0.034283  59.766214   
+-1     pli  welch    end vs free   43   40  40  0.090455  0.928160  77.330250   
++0     pli  welch  start vs free   42   40  40 -2.184525  0.032873  59.533903   
++1     pli  welch    end vs free   43   40  40  0.070036  0.944346  77.523973   
+-3     eli  welch  start vs free   42   40  40 -1.759707  0.085824  41.520279   
+-4     eli  welch    end vs free   43   40  40  0.479425  0.633225  65.818211   
+-5     eli  welch   start vs end   42   43  42 -1.551403  0.128158  42.864182   
++3     eli  welch  start vs free   42   40  40 -1.736244  0.089934  41.537597   
++4     eli  welch    end vs free   43   40  40 -0.321328  0.748790  80.957904   
++5     eli  welch   start vs end   42   43  42 -1.203042  0.235333  44.421875   
+-0 -0.485033    0.205696  
+-1  0.019662    1.000000  
++0 -0.489156    0.197238  
++1  0.015227    1.000000  
+-3 -0.397849    0.343817  
+-4  0.103245    1.000000  
+-5 -0.332666    0.384474  
++3 -0.392540    0.359734  
++4 -0.070340    1.000000  
++5 -0.258074    0.705998  
+###  for sess in range(1,5):
+-3     eli  welch  start vs free   42   40  40 -1.630050  0.110652  41.535381   
+-4     eli  welch    end vs free   43   40  40  0.535598  0.594284  58.024513   
+-5     eli  welch   start vs end   42   43  42 -1.324360  0.192454  42.547717   
++3     eli  welch  start vs free   42   40  40 -1.634622  0.109686  41.532800   
++4     eli  welch    end vs free   43   40  40 -0.754187  0.453544  63.072888   
++5     eli  welch   start vs end   42   43  42 -1.297533  0.200402  50.006548   
+-1 -0.049313    1.000000  
++1 -0.049313    0.907088  
+-3 -0.368532    0.442610  
+-4  0.114742    1.000000  
+-5 -0.283956    0.577362  
++3 -0.369566    0.438746  
++4 -0.168536    0.907088  
++5 -0.278733    0.601206  
+-0     pli  welch  start vs free   42   40  40 -0.708956  0.480457  78.300220   
+-1     pli  welch    end vs free   43   40  40  0.346108  0.730160  80.898969   
++0     pli  welch  start vs free   42   40  40 -0.692495  0.490676  78.289919   
++1     pli  welch    end vs free   43   40  40  0.360834  0.719164  80.901580   
+-3     eli  welch  start vs free   42   40  40 -1.719073  0.092809  42.904941   
+-4     eli  welch    end vs free   43   40  40  0.553717  0.582126  52.446873   
+-5     eli  welch   start vs end   42   43  42 -1.212186  0.232131  42.535287   
++3     eli  welch  start vs free   42   40  40 -1.663396  0.103519  42.922002   
++4     eli  welch    end vs free   43   40  40 -0.874574  0.384883  68.032910   
++5     eli  welch   start vs end   42   43  42 -0.951714  0.345670  51.698459   
+-0 -0.157009    1.000000  
+-1  0.075730    1.000000  
++0 -0.153365    1.000000  
++1  0.078953    1.000000  
+-3 -0.388332    0.556856  
+-4  0.118177    1.000000  
+-5 -0.259904    1.000000  
++3 -0.375751    0.621114  
++4 -0.194727    1.000000  
++5 -0.204526    1.000000  
+-3     eli  welch  start vs free   38   35  35 -1.561613  0.127042  36.359571   
+-4     eli  welch    end vs free   41   35  35 -0.082995  0.934081  73.525191   
+-5     eli  welch   start vs end   38   41  38 -1.225907  0.227063  42.001335   
++3     eli  welch  start vs free   38   35  35 -1.534556  0.133549  36.361496   
++4     eli  welch    end vs free   41   35  35 -0.072779  0.942179  73.527896   
++5     eli  welch   start vs end   38   41  38 -1.216345  0.230645  42.003909   
+-3 -0.380287    0.635210  
+-4 -0.018741    1.000000  
+-5 -0.266097    0.905473  
++3 -0.373697    0.667745  
++4 -0.016435    1.000000  
++5 -0.264022    0.905473  
+-0     pli  welch  start vs free   33   26  26 -2.025604  0.051721  30.198041   
+-1     pli  welch    end vs free   31   26  26  0.192248  0.848295  52.089921   
++0     pli  welch  start vs free   33   27  27 -2.253421  0.031315  31.573914   
++1     pli  welch    end vs free   31   27  27  0.073976  0.941312  52.191684   
+-3     eli  welch  start vs free   33   26  26 -1.760949  0.089786  26.496177   
+-4     eli  welch    end vs free   31   26  26  0.300224  0.765500  41.635968   
+-5     eli  welch   start vs end   33   31  31 -1.142237  0.262280  30.373230   
++3     eli  welch  start vs free   33   27  27 -1.791217  0.084192  27.701595   
++4     eli  welch    end vs free   31   27  27  0.311904  0.756696  40.953040   
++5     eli  welch   start vs end   33   31  31 -1.137401  0.264263  30.378741   
+-0 -0.582983    0.310327  
+-1  0.049320    1.000000  
+-2 -0.439605    0.448929  
+-3 -0.516811    0.448929  
+-4  0.074983    1.000000  
+-5 -0.294801    0.786841  
++0 -0.632476    0.187887  
++1  0.018934    1.000000  
++2 -0.439605    0.420959  
++3 -0.510809    0.420959  
++4  0.078104    1.000000  
++5 -0.293551    0.792788  
+###  for pos in range(0,5):
+-0     irt  welch  start vs free   42   40  40  0.350646  0.726785  79.212972   
+-1     irt  welch    end vs free   43   40  40  1.773026  0.080032  79.981058   
+-2     irt  welch   start vs end   42   43  42 -1.348185  0.181267  82.984615   
++0     irt  welch  start vs free   42   40  40  0.390299  0.697364  79.124040   
++1     irt  welch    end vs free   43   40  40  1.787675  0.077620  79.894928   
++2     irt  welch   start vs end   42   43  42 -1.321750  0.189884  82.986334   
+-0  0.077184    0.726785  
+-1  0.386857    0.240095  
+-2 -0.292352    0.362535  
++0  0.085901    0.697364  
++1  0.389987    0.232861  
++2 -0.286623    0.379767  
+-0     irt  welch  start vs free   42   40  40  0.008351  0.993358  79.570697   
+-1     irt  welch    end vs free   43   40  40  2.143440  0.035190  78.105388   
+-2     irt  welch   start vs end   42   43  42 -2.051181  0.043450  81.783275   
++0     irt  welch  start vs free   42   40  40 -0.052242  0.958467  79.649933   
++1     irt  welch    end vs free   43   40  40  2.130991  0.036237  78.073944   
++2     irt  welch   start vs end   42   43  42 -2.099441  0.038867  81.616953   
+-0  0.001839    0.993358  
+-1  0.466338    0.105570  
+-2 -0.444224    0.105570  
++0 -0.011509    0.958467  
++1  0.463612    0.108711  
++2 -0.454631    0.108711  
+-0     irt  welch  start vs free   42   40  40  0.255031  0.799379  77.024441   
+-1     irt  welch    end vs free   43   40  40  2.588598  0.011541  76.018505   
+-2     irt  welch   start vs end   42   43  42 -2.140116  0.035293  82.658580   
++0     irt  welch  start vs free   42   40  40  0.249246  0.803834  77.004114   
++1     irt  welch    end vs free   43   40  40  2.608375  0.010944  76.167272   
++2     irt  welch   start vs end   42   43  42 -2.160686  0.033612  82.711189   
+-0  0.056004    0.799379  
+-1  0.561910    0.034624  
+-2 -0.463802    0.070586  
++0  0.054733    0.803834  
++1  0.566286    0.032832  
++2 -0.468289    0.067225  
+-0     irt  welch  start vs free   42   40  40  0.850713  0.397604  75.899394   
+-1     irt  welch    end vs free   43   40  40  2.584550  0.011767  72.369268   
+-2     irt  welch   start vs end   42   43  42 -1.641378  0.104564  81.695844   
++0     irt  welch  start vs free   42   40  40  0.782996  0.436055  76.219923   
++1     irt  welch    end vs free   43   40  40  2.511834  0.014230  72.729084   
++2     irt  welch   start vs end   42   43  42 -1.636905  0.105498  81.677053   
+-0  0.186652    0.397604  
+-1  0.559247    0.035300  
+-2 -0.355454    0.209127  
++0  0.171835    0.436055  
++1  0.543670    0.042691  
++2 -0.354482    0.210996  
+-0     irt  welch  start vs free   42   40  40  0.275672  0.783511  79.993620   
+-1     irt  welch    end vs free   42   40  40  2.110820  0.038076  76.019803   
+-2     irt  welch   start vs end   42   42  42 -1.844518  0.068896  78.157557   
++0     irt  welch  start vs free   42   40  40  0.295522  0.768361  79.969717   
++1     irt  welch    end vs free   42   40  40  2.145907  0.035084  75.745412   
++2     irt  welch   start vs end   42   42  42 -1.854611  0.067421  78.213252   
+-0  0.060816    0.783511  
+-1  0.463169    0.114228  
+-2 -0.402507    0.137793  
++0  0.065179    0.768361  
++1  0.470774    0.105251  
++2 -0.404709    0.134842  
+###  summary = (
+-0                   end                      -4.0  3089.215210  1646.995091
+-1                   end                      -3.0  3487.968239  1849.825883
+-2                   end                      -2.0  3911.110952  1922.371261
+-3                   end                      -1.0  5165.983013  2820.093801
+-4                   end                       0.0  7633.311867  4301.602059
+-5                  free                      -4.0  2525.951477  1337.551846
+-6                  free                      -3.0  2734.505367  1323.337495
+-7                  free                      -2.0  3134.712614  1548.779461
+-8                  free                      -1.0  4194.088798  2340.597632
+-9                  free                       0.0  6196.542540  3647.297923
+-10                start                      -4.0  2555.873743  1454.186278
+-11                start                      -3.0  2972.179910  1661.248886
+-12                start                      -2.0  3239.267243  1806.802663
+-13                start                      -1.0  4201.413832  2483.793528
+-14                start                       0.0  6658.647769  4229.083369
++0                   end                      -4.0  3090.553626  1646.938725
++1                   end                      -3.0  3485.654153  1850.005834
++2                   end                      -2.0  3916.676058  1919.471290
++3                   end                      -1.0  5173.031298  2821.011251
++4                   end                       0.0  7626.546749  4304.324713
++5                  free                      -4.0  2524.542685  1330.176534
++6                  free                      -3.0  2758.100229  1348.989358
++7                  free                      -2.0  3148.349604  1550.148788
++8                  free                      -1.0  4205.259508  2335.115649
++9                  free                       0.0  6191.785609  3634.101099
++10                start                      -4.0  2553.627697  1455.543511
++11                start                      -3.0  2971.610700  1661.224493
++12                start                      -2.0  3238.821544  1806.664045
++13                start                      -1.0  4187.516628  2453.263719
++14                start                       0.0  6671.261156  4237.707670
+###  for bin in range(1, 11):
+-0  irt_delta  welch  start vs free   32   30  30 -0.296384  0.768013   
+-1  irt_delta  welch    end vs free   34   30  30 -0.343705  0.732303   
+-2  irt_delta  welch   start vs end   32   34  32  0.051845  0.958814   
++0  irt_delta  welch  start vs free   32   30  30 -0.302324  0.763506   
++1  irt_delta  welch    end vs free   34   30  30 -0.358226  0.721468   
++2  irt_delta  welch   start vs end   32   34  32  0.059859  0.952455   
+-0  57.030944 -0.074605         1.0  
+-1  58.388074 -0.084106         1.0  
+-2  63.961060  0.012735         1.0  
++0  56.995784 -0.076097         1.0  
++1  58.329624 -0.087648         1.0  
++2  63.958385  0.014704         1.0  
+-0  irt_delta  welch  start vs free   39   37  37 -1.282258  0.204369   
+-1  irt_delta  welch    end vs free   39   37  37  0.124878  0.900959   
+-2  irt_delta  welch   start vs end   39   39  39 -1.358448  0.178905   
++0  irt_delta  welch  start vs free   39   37  37 -1.417309  0.161425   
++1  irt_delta  welch    end vs free   39   37  37 -0.273091  0.785549   
++2  irt_delta  welch   start vs end   39   39  39 -1.173128  0.244962   
+-0  64.117998 -0.290832    0.536714  
+-1  73.953133  0.028599    0.900959  
+-2  66.608391 -0.307628    0.536714  
++0  61.674467 -0.321008    0.484275  
++1  73.572190 -0.062457    0.785549  
++2  65.978833 -0.265661    0.489925  
+-0  irt_delta  welch  start vs free   39   37  37 -1.111540  0.270208   
+-1  irt_delta  welch    end vs free   38   37  37  0.154808  0.877406   
+-2  irt_delta  welch   start vs end   39   38  38 -1.355598  0.179408   
++0  irt_delta  welch  start vs free   39   37  37 -1.127324  0.263524   
++1  irt_delta  welch    end vs free   38   37  37  0.111986  0.911146   
++2  irt_delta  welch   start vs end   39   38  38 -1.326649  0.188756   
+-0  68.750424 -0.256624    0.540416  
+-1  72.073172  0.035796    0.877406  
+-2  72.972987 -0.309568    0.538224  
++0  68.767378 -0.260265    0.566267  
++1  72.008458  0.025896    0.911146  
++2  73.075787 -0.302939    0.566267  
+-0  irt_delta  welch  start vs free   28   32  28 -1.126970  0.264539   
+-1  irt_delta  welch    end vs free   32   32  32  0.384165  0.702196   
+-2  irt_delta  welch   start vs end   28   32  28 -1.659512  0.102420   
++0  irt_delta  welch  start vs free   28   32  28 -1.152645  0.253927   
++1  irt_delta  welch    end vs free   32   32  32  0.314841  0.753963   
++2  irt_delta  welch   start vs end   28   32  28 -1.616122  0.111499   
+-0  56.264056 -0.285645    0.529077  
+-1  60.828285  0.096041    0.702196  
+-2  57.906248 -0.424388    0.307259  
++0  56.299289 -0.292188    0.507854  
++1  60.648327  0.078710    0.753963  
++2  57.955650 -0.413637    0.334497  
+-0  irt_delta  welch  start vs free   18   25  18  0.993667  0.326816   
+-1  irt_delta  welch    end vs free   23   25  23  0.927532  0.358494   
+-2  irt_delta  welch   start vs end   18   23  18  0.147955  0.883209   
++0  irt_delta  welch  start vs free   18   25  18  0.972952  0.337057   
++1  irt_delta  welch    end vs free   23   25  23  0.894126  0.375933   
++2  irt_delta  welch   start vs end   18   23  18  0.156586  0.876450   
+-0  37.133413  0.306347    0.980449  
+-1  45.979555  0.267259    0.980449  
+-2  35.784748  0.046842    0.980449  
++0  36.071917  0.302352         1.0  
++1  45.764646  0.258188         1.0  
++2  35.841551  0.049556         1.0  
+-0  irt_delta  welch  start vs free   14   11  11  0.258596  0.798285   
+-1  irt_delta  welch    end vs free   15   11  11  0.075790  0.940245   
+-2  irt_delta  welch   start vs end   14   15  14  0.198424  0.844372   
++0  irt_delta  welch  start vs free   14   11  11  0.079873  0.937041   
++1  irt_delta  welch    end vs free   15   11  11 -0.138334  0.891183   
++2  irt_delta  welch   start vs end   14   15  14  0.199227  0.843751   
+-0  22.628645  0.099528         1.0  
+-1  22.892195  0.029586         1.0  
+-2  24.187069  0.074458         1.0  
++0  22.596050  0.030722         1.0  
++1  22.947433 -0.053953         1.0  
++2  24.184232  0.074760         1.0  
+-0  irt_delta  welch  start vs free    8    5  5  0.163346  0.874644   
+-1  irt_delta  welch    end vs free    6    5  5  0.799789  0.446227   
+-2  irt_delta  welch   start vs end    8    6  6 -0.800693  0.441406   
++0  irt_delta  welch  start vs free    8    6  6 -0.066798  0.948055   
++1  irt_delta  welch    end vs free    6    6  6  0.652524  0.528801   
++2  irt_delta  welch   start vs end    8    6  6 -0.807991  0.437333   
+-0   7.356114  0.097744         1.0  
+-1   8.258240  0.489093         1.0  
+-2  10.288769 -0.438892         1.0  
++0  10.031814 -0.036823         1.0  
++1   9.983380  0.376735         1.0  
++2  10.315160 -0.442631         1.0  
+###  for pos in range(1, 21):
+-0     irt  welch  start vs free   42   40  40  1.589631  0.116061  76.152021   
+-1     irt  welch    end vs free   43   40  40  1.906942  0.060490  72.516633   
+-2     irt  welch   start vs end   42   43  42 -0.419239  0.676143  81.608772   
+-
+-    cohen_d  p_val_holm  
+-0  0.348840    0.232123  
+-1  0.412675    0.181469  
+-2 -0.090785    0.676143  
++0     irt  welch  start vs free   42   40  40  1.526098  0.131119  76.321484   
++1     irt  welch    end vs free   43   40  40  1.842644  0.069452  72.812265   
++2     irt  welch   start vs end   42   43  42 -0.411575  0.681729  81.653594   
++
++    cohen_d  p_val_holm  
++0  0.334941    0.262238  
++1  0.398855    0.208356  
++2 -0.089128    0.681729  
+-0     irt  welch  start vs free   42   40  40  0.685802  0.494824  79.869683   
+-1     irt  welch    end vs free   43   40  40  1.798070  0.076022  78.271466   
+-2     irt  welch   start vs end   42   43  42 -1.205496  0.231612  78.961714   
+-
+-    cohen_d  p_val_holm  
+-0  0.151480    0.494824  
+-1  0.391279    0.228065  
+-2 -0.260752    0.463224  
++0     irt  welch  start vs free   42   40  40  0.777841  0.438959  79.937455   
++1     irt  welch    end vs free   43   40  40  1.902717  0.060783  77.685105   
++2     irt  welch   start vs end   42   43  42 -1.228532  0.222909  78.683535   
++
++    cohen_d  p_val_holm  
++0  0.171757    0.445819  
++1  0.413756    0.182349  
++2 -0.265709    0.445819  
+-0     irt  welch  start vs free   42   40  40  0.144869  0.885189  77.812434   
+-1     irt  welch    end vs free   43   40  40  1.565060  0.121468  80.991651   
+-2     irt  welch   start vs end   42   43  42 -1.526407  0.130829  80.492556   
+-
+-    cohen_d  p_val_holm  
+-0  0.032100    0.885189  
+-1  0.342755    0.364404  
+-2 -0.330360    0.364404  
++0     irt  welch  start vs free   42   40  40  0.160230  0.873115  77.852650   
++1     irt  welch    end vs free   43   40  40  1.561627  0.122275  80.997186   
++2     irt  welch   start vs end   42   43  42 -1.506804  0.135768  80.647004   
++
++    cohen_d  p_val_holm  
++0  0.035502    0.873115  
++1  0.342056    0.366825  
++2 -0.326139    0.366825  
+-0     irt  welch  start vs free   42   40  40 -0.524133  0.601675  77.872352   
+-1     irt  welch    end vs free   43   40  40  1.215990  0.227569  79.913178   
+-2     irt  welch   start vs end   42   43  42 -1.853391  0.067388  82.798099   
+-
+-    cohen_d  p_val_holm  
+-0 -0.116129    0.601675  
+-1  0.267544    0.455137  
+-2 -0.401735    0.202165  
++0     irt  welch  start vs free   42   40  40 -0.512011  0.610092  77.915842   
++1     irt  welch    end vs free   43   40  40  1.243794  0.217217  79.786951   
++2     irt  welch   start vs end   42   43  42 -1.871957  0.064741  82.861354   
++
++    cohen_d  p_val_holm  
++0 -0.113438    0.610092  
++1  0.273729    0.434435  
++2 -0.405800    0.194222  
+-0     irt  welch  start vs free   42   40  40 -1.151180  0.253109  79.490255   
+-1     irt  welch    end vs free   42   40  40  1.591349  0.115522  79.051459   
+-2     irt  welch   start vs end   42   42  42 -2.594804  0.011211  81.926885   
+-
+-    cohen_d  p_val_holm  
+-0 -0.253519    0.253109  
+-1  0.350202    0.231045  
+-2 -0.566233    0.033634  
++0     irt  welch  start vs free   42   40  40 -1.149064  0.253976  79.487659   
++1     irt  welch    end vs free   42   40  40  1.596741  0.114314  79.052160   
++2     irt  welch   start vs end   42   42  42 -2.597841  0.011120  81.928096   
++
++    cohen_d  p_val_holm  
++0 -0.253052    0.253976  
++1  0.351389    0.228627  
++2 -0.566895    0.033361  
+-0     irt  welch  start vs free   42   40  40 -0.568154  0.571530  79.564591   
+-1     irt  welch    end vs free   41   40  40 -0.000043  0.999966  74.573847   
+-2     irt  welch   start vs end   42   41  41 -0.633905  0.527981  78.679325   
+-
+-    cohen_d  p_val_holm  
+-0 -0.125598         1.0  
+-1 -0.000010         1.0  
+-2 -0.138839         1.0  
++0     irt  welch  start vs free   42   40  40 -0.563328  0.574796  79.554881   
++1     irt  welch    end vs free   41   40  40  0.007111  0.994345  74.550315   
++2     irt  welch   start vs end   42   41  41 -0.636139  0.526532  78.681930   
++
++    cohen_d  p_val_holm  
++0 -0.124533         1.0  
++1  0.001585         1.0  
++2 -0.139328         1.0  
+-0     irt  welch  start vs free   39   39  39 -0.824931  0.412419  65.196397   
+-1     irt  welch    end vs free   41   39  39  0.092949  0.926199  72.884595   
+-2     irt  welch   start vs end   39   41  39 -1.082620  0.282398  76.043585   
+-
+-    cohen_d  p_val_holm  
+-0 -0.186810    0.847195  
+-1  0.020904    0.926199  
+-2 -0.240873    0.847195  
++0     irt  welch  start vs free   39   39  39 -0.857417  0.394350  65.319461   
++1     irt  welch    end vs free   41   39  39  0.056473  0.955119  73.033050   
++2     irt  welch   start vs end   39   41  39 -1.072019  0.287103  76.017253   
++
++    cohen_d  p_val_holm  
++0 -0.194167    0.861309  
++1  0.012700    0.955119  
++2 -0.238508    0.861309  
+-0     irt  welch  start vs free   33   33  33  0.366307  0.715367  62.827315   
+-1     irt  welch    end vs free   37   33  33  0.447312  0.656722  46.599262   
+-2     irt  welch   start vs end   33   37  33 -0.011487  0.990880  50.651673   
+-
+-    cohen_d  p_val_holm  
+-0  0.090178         1.0  
+-1  0.110776         1.0  
+-2 -0.002828         1.0  
++0     irt  welch  start vs free   33   33  33  0.876573  0.384280  58.907512   
++1     irt  welch    end vs free   37   33  33  1.188815  0.239109  61.145256   
++2     irt  welch   start vs end   33   37  33 -0.008579  0.993189  50.590532   
++
++    cohen_d  p_val_holm  
++0  0.215797    0.768559  
++1  0.288331    0.717327  
++2 -0.002113    0.993189  
+-0     irt  welch  start vs free   26   30  26  0.755965  0.453125  51.346922   
+-1     irt  welch    end vs free   31   30  30  0.725029  0.471313  58.740761   
+-2     irt  welch   start vs end   26   31  26  0.106621  0.915510  50.660040   
+-
+-    cohen_d  p_val_holm  
+-0  0.203771         1.0  
+-1  0.185788         1.0  
+-2  0.028646         1.0  
++0     irt  welch  start vs free   26   30  26  0.738622  0.463500  51.349652   
++1     irt  welch    end vs free   31   30  30  0.768873  0.445047  58.779186   
++2     irt  welch   start vs end   26   31  26  0.046832  0.962831  50.798272   
++
++    cohen_d  p_val_holm  
++0  0.199094         1.0  
++1  0.197006         1.0  
++2  0.012577         1.0  
+-0     irt  welch  start vs free   21   26  21  1.426999  0.161030  41.675184   
+-1     irt  welch    end vs free   28   26  26  2.317819  0.025331  42.601486   
+-2     irt  welch   start vs end   21   28  21 -1.162195  0.251316  44.761102   
+-
+-    cohen_d  p_val_holm  
+-0  0.421616    0.322060  
+-1  0.618651    0.075992  
+-2 -0.312473    0.322060  
++0     irt  welch  start vs free   21   26  21  1.441979  0.156812  41.506900   
++1     irt  welch    end vs free   28   26  26  2.371333  0.022315  42.625896   
++2     irt  welch   start vs end   21   28  21 -1.193483  0.238947  44.906556   
++
++    cohen_d  p_val_holm  
++0  0.426403    0.313623  
++1  0.632951    0.066945  
++2 -0.321203    0.313623  
+-0     irt  welch  start vs free   18   23  18  0.463735  0.645827  33.614896   
+-1     irt  welch    end vs free   24   23  23  1.491473  0.142933  44.243785   
+-2     irt  welch   start vs end   18   24  18 -0.775943  0.443584  31.423006   
+-
+-    cohen_d  p_val_holm  
+-0  0.148734    0.887168  
+-1  0.436034    0.428800  
+-2 -0.250462    0.887168  
++0     irt  welch  start vs free   18   23  18  0.464108  0.645579  33.428041   
++1     irt  welch    end vs free   24   23  23  1.495450  0.141880  44.348049   
++2     irt  welch   start vs end   18   24  18 -0.774761  0.444268  31.445514   
++
++    cohen_d  p_val_holm  
++0  0.149010    0.888535  
++1  0.437106    0.425639  
++2 -0.250046    0.888535  
+-0     irt  welch  start vs free   16   14  14 -0.583046  0.567640  16.729804   
+-1     irt  welch    end vs free   19   14  14 -0.909471  0.378258  14.221508   
+-2     irt  welch   start vs end   16   19  16  0.701003  0.489998  24.159350   
+-
+-    cohen_d  p_val_holm  
+-0 -0.224219         1.0  
+-1 -0.368189         1.0  
+-2  0.247415         1.0  
++0     irt  welch  start vs free   16   14  14 -0.549955  0.589622  16.719787   
++1     irt  welch    end vs free   19   14  14 -0.873587  0.396861  14.215620   
++2     irt  welch   start vs end   16   19  16  0.699165  0.491130  24.143053   
++
++    cohen_d  p_val_holm  
++0 -0.211503         1.0  
++1 -0.353693         1.0  
++2  0.246784         1.0  
+-0     irt  welch  start vs free   14   12  12  0.882243  0.386895  22.694251   
+-1     irt  welch    end vs free   13   12  12  1.027685  0.314857  22.845952   
+-2     irt  welch   start vs end   14   13  13 -0.277083  0.784221  22.729225   
+-
+-    cohen_d  p_val_holm  
+-0  0.349298     0.94457  
+-1  0.408586     0.94457  
+-2 -0.107719     0.94457  
++0     irt  welch  start vs free   14   12  12  0.873185  0.391706  22.699903   
++1     irt  welch    end vs free   13   12  12  1.011513  0.322368  22.838397   
++2     irt  welch   start vs end   14   13  13 -0.268894  0.790439  22.711417   
++
++    cohen_d  p_val_holm  
++0  0.345696    0.967104  
++1  0.402123    0.967104  
++2 -0.104541    0.967104  
+-0     irt  welch  start vs free   10    7  7  1.605408  0.137311  10.765824   
+-1     irt  welch    end vs free    8    7  7  1.506793  0.158579  11.610543   
+-2     irt  welch   start vs end   10    8  8  1.049816  0.318395  10.048904   
+-
+-    cohen_d  p_val_holm  
+-0  0.672246    0.411934  
+-1  0.791414    0.411934  
+-2  0.447377    0.411934  
++0     irt  welch  start vs free   10    8  8  1.601580  0.139258  10.364329   
++1     irt  welch    end vs free    8    8  8  1.609497  0.130276  13.714502   
++2     irt  welch   start vs end   10    8  8  1.041297  0.322195  10.026588   
++
++    cohen_d  p_val_holm  
++0  0.684620    0.390829  
++1  0.804749    0.390829  
++2  0.443649    0.390829  
+-0     irt  welch  start vs free    7    4  4 -1.180236  0.315740   3.309119   
+-1     irt  welch    end vs free    6    4  4 -0.858258  0.449997   3.214316   
++0     irt  welch  start vs free    7    5  5 -1.282201  0.259865   4.658580   
++1     irt  welch    end vs free    6    5  5 -0.882803  0.422404   4.456167   
+-0 -0.965302    0.830318  
+-1 -0.683415    0.830318  
+-2 -0.623597    0.830318  
++0 -0.871231    0.779596  
++1 -0.584396    0.779596  
++2 -0.623597    0.779596  
++
+###  stat_tests.condition_contrast(tcl_df, ['tcl'], paired=False)
+-0     tcl  welch  start vs free   42   40  40 -4.054444  0.000116  79.932348   
+-1     tcl  welch    end vs free   43   40  40 -2.448194  0.016524  80.776408   
+-2     tcl  welch   start vs end   42   43  42 -1.491062  0.139738  82.953578   
++0     tcl  welch  start vs free   42   40  40 -4.039334  0.000122  79.942835   
++1     tcl  welch    end vs free   43   40  40 -2.439528  0.016897  80.789091   
++2     tcl  welch   start vs end   42   43  42 -1.485108  0.141306  82.950276   
+-0 -0.894011    0.000348  
+-1 -0.535339    0.033048  
+-2 -0.323296    0.139738  
++0 -0.890731    0.000367  
++1 -0.533473    0.033793  
++2 -0.322002    0.141306  
+###  stat_tests.condition_contrast(tcl_h_df, ['tcl_h1', 'tcl_h2', 'tcl_delt
+-0     tcl_h1  welch  start vs free   42   40  40 -4.559912  0.000022   
+-1     tcl_h1  welch    end vs free   43   40  40 -1.962253  0.053667   
+-2     tcl_h1  welch   start vs end   42   43  42 -2.241602  0.027662   
+-3     tcl_h2  welch  start vs free   42   40  40 -0.527571  0.599275   
+-4     tcl_h2  welch    end vs free   43   40  40 -1.361809  0.177153   
+-5     tcl_h2  welch   start vs end   42   43  42  0.861263  0.391586   
+-6  tcl_delta  welch  start vs free   42   40  40  3.704632  0.000430   
+-7  tcl_delta  welch    end vs free   43   40  40  0.819525  0.415132   
+-8  tcl_delta  welch   start vs end   42   43  42  2.597902  0.011130   
++0     tcl_h1  welch  start vs free   42   40  40 -4.578078  0.000021   
++1     tcl_h1  welch    end vs free   43   40  40 -2.004630  0.048838   
++2     tcl_h1  welch   start vs end   42   43  42 -2.224939  0.028806   
++3     tcl_h2  welch  start vs free   42   40  40 -0.517687  0.606121   
++4     tcl_h2  welch    end vs free   43   40  40 -1.347280  0.181763   
++5     tcl_h2  welch   start vs end   42   43  42  0.852562  0.396368   
++6  tcl_delta  welch  start vs free   42   40  40  3.730970  0.000395   
++7  tcl_delta  welch    end vs free   43   40  40  0.877173  0.383245   
++8  tcl_delta  welch   start vs end   42   43  42  2.581291  0.011640   
+-0  67.898878 -0.995882    0.000198  
+-1  70.756845 -0.424065    0.268333  
+-2  82.803978 -0.486449    0.165973  
+-3  79.018059 -0.116735    1.000000  
+-4  78.519726 -0.300303    0.708610  
+-5  82.630740  0.186943    1.000000  
+-6  67.242125  0.808827    0.003438  
+-7  73.626217  0.177512    1.000000  
+-8  81.403735  0.564385    0.077910  
++0  67.628189 -0.999715    0.000186  
++1  70.607499 -0.433175    0.244192  
++2  82.778190 -0.482851    0.172836  
++3  79.125148 -0.114530    1.000000  
++4  78.573299 -0.297077    0.727051  
++5  82.581653  0.185064    1.000000  
++6  67.003530  0.814483    0.003161  
++7  73.643069  0.190001    1.000000  
++8  81.255432  0.560820    0.081479  
+###  fwd_asym_df = lcrp_df.apply(lambda row: lcrp.forward_asymmetry(row, n=
+-0    asym  welch  start vs free   42   40  40  0.143987  8.859317e-01   
+-1    asym  welch    end vs free   43   40  40 -4.703740  1.036610e-05   
+-2    asym  welch   start vs end   42   43  42  5.608386  3.644610e-07   
++0    asym  welch  start vs free   42   40  40  0.163251  8.707981e-01   
++1    asym  welch    end vs free   43   40  40 -4.700648  1.049021e-05   
++2    asym  welch   start vs end   42   43  42  5.619091  3.482773e-07   
+-0  68.852543  0.032092    0.885932  
+-1  80.987409 -1.030053    0.000021  
+-2  71.209811  1.210521    0.000001  
++0  68.950531  0.036384    0.870798  
++1  80.986474 -1.029359    0.000021  
++2  71.289333  1.212855    0.000001  
+###  stat_tests.condition_contrast(lcrp_df, ["lp_1", "ln_1"], paired=False)
+-0    lp_1  welch  start vs free   42   40  40 -1.018237  3.120606e-01   
+-1    lp_1  welch    end vs free   43   40  40 -3.217716  1.858755e-03   
+-2    lp_1  welch   start vs end   42   43  42  2.718587  8.173788e-03   
+-3    ln_1  welch  start vs free   42   40  40 -2.111047  3.789194e-02   
+-4    ln_1  welch    end vs free   43   40  40  5.276755  1.082846e-06   
+-5    ln_1  welch   start vs end   42   43  42 -7.264308  1.919012e-10   
++0    lp_1  welch  start vs free   42   40  40 -1.016764  3.127564e-01   
++1    lp_1  welch    end vs free   43   40  40 -3.224660  1.819353e-03   
++2    lp_1  welch   start vs end   42   43  42  2.728264  7.957118e-03   
++3    ln_1  welch  start vs free   42   40  40 -2.146939  3.482814e-02   
++4    ln_1  welch    end vs free   43   40  40  5.227044  1.323389e-06   
++5    ln_1  welch   start vs end   42   43  42 -7.258319  1.973537e-10   
+-0  70.228780 -0.226778  3.120606e-01  
+-1  80.991657 -0.705215  7.435019e-03  
+-2  73.510626  0.587113  2.452136e-02  
+-3  79.969262 -0.466048  7.578388e-02  
+-4  80.652714  1.153307  5.414229e-06  
+-5  82.401520 -1.573916  1.151407e-09  
++0  70.217521 -0.226451  3.127564e-01  
++1  80.986134 -0.706813  7.277410e-03  
++2  73.617736  0.589219  2.387135e-02  
++3  79.958037 -0.474011  6.965628e-02  
++4  80.672790  1.142522  6.616943e-06  
++5  82.382726 -1.572594  1.184122e-09  
+###  stat_tests.condition_contrast(lcrp_df, ['lp_1', 'lp_2', 'lp_3', 'ln_1'
++   measure   test       contrast  n_1  n_2   n    t_stat         p_val  \
++0     lp_1  welch  start vs free   42   40  40 -1.016764  3.127564e-01   
++1     lp_1  welch    end vs free   43   40  40 -3.224660  1.819353e-03   
++2     lp_1  welch   start vs end   42   43  42  2.728264  7.957118e-03   
++3     lp_2  welch  start vs free   42   40  40 -1.012611  3.143412e-01   
++4     lp_2  welch    end vs free   43   40  40 -2.890169  4.951205e-03   
++5     lp_2  welch   start vs end   42   43  42  1.624487  1.082398e-01   
++6     lp_3  welch  start vs free   42   40  40 -2.269414  2.595249e-02   
++7     lp_3  welch    end vs free   43   40  40 -1.712802  9.059171e-02   
++8     lp_3  welch   start vs end   42   43  42 -0.388658  6.985452e-01   
++9     ln_1  welch  start vs free   42   40  40 -2.146939  3.482814e-02   
++10    ln_1  welch    end vs free   43   40  40  5.227044  1.323389e-06   
++11    ln_1  welch   start vs end   42   43  42 -7.258319  1.973537e-10   
++12    ln_2  welch  start vs free   42   40  40 -2.441195  1.750913e-02   
++13    ln_2  welch    end vs free   43   40  40  2.301907  2.435985e-02   
++14    ln_2  welch   start vs end   42   43  42 -6.348567  1.181535e-08   
++15    ln_3  welch  start vs free   42   40  40 -1.077028  2.852077e-01   
++16    ln_3  welch    end vs free   43   40  40  1.634536  1.065720e-01   
++17    ln_3  welch   start vs end   42   43  42 -3.376426  1.119641e-03   
++
++          dof   cohen_d    p_val_holm  
++0   70.217521 -0.226451  1.000000e+00  
++1   80.986134 -0.706813  2.547094e-02  
++2   73.617736  0.589219  9.548542e-02  
++3   78.898259 -0.222795  1.000000e+00  
++4   80.208596 -0.635497  6.436566e-02  
++5   79.312914  0.353233  6.394321e-01  
++6   79.505729 -0.501744  2.435985e-01  
++7   80.636762 -0.374336  6.341420e-01  
++8   81.290587 -0.084149  1.000000e+00  
++9   79.958037 -0.474011  2.786251e-01  
++10  80.672790  1.142522  2.117422e-05  
++11  82.382726 -1.572594  3.552367e-09  
++12  61.961081 -0.545981  1.926004e-01  
++13  69.090539  0.512117  2.435985e-01  
++14  80.992263 -1.374330  2.008609e-07  
++15  69.211191 -0.240003  1.000000e+00  
++16  71.014283  0.363096  6.394321e-01  
++17  82.950120 -0.732079  1.679462e-02  
+###  stat_tests.one_sample(scl_df, ["scl"], popmean=0.5)
+-0                start     scl  one_sample  42  3.628173  0.000783   41   
+-1                  end     scl  one_sample  43  5.114521  0.000007   42   
+-2                 free     scl  one_sample  40  5.780845  0.000001   39   
++0                start     scl  one_sample  42  3.639314  0.000758   41   
++1                  end     scl  one_sample  43  5.085243  0.000008   42   
++2                 free     scl  one_sample  40  5.623098  0.000002   39   
+-0  0.559839    0.000783  
+-1  0.779957    0.000015  
+-2  0.914032    0.000003  
++0  0.561558    0.000758  
++1  0.775492    0.000016  
++2  0.889090    0.000005  
+###  # 3) stats
+-0     scl  welch  start vs free   42   40  40 -1.569816  0.120411  79.876338   
+-1     scl  welch    end vs free   43   40  40 -0.465363  0.642922  80.897727   
+-2     scl  welch   start vs end   42   43  42 -1.099936  0.274540  82.998807   
++0     scl  welch  start vs free   42   40  40 -1.500421  0.137454  79.759710   
++1     scl  welch    end vs free   43   40  40 -0.423032  0.673396  80.811061   
++2     scl  welch   start vs end   42   43  42 -1.079740  0.283386  82.996443   
+-0 -0.346731    0.361233  
+-1 -0.102086    0.642922  
+-2 -0.238548    0.549080  
++0 -0.331531    0.412361  
++1 -0.092844    0.673396  
++2 -0.234160    0.566772  
