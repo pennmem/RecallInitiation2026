@@ -14,6 +14,7 @@ Figures produced (saved next to the originals in figures/, suffix _exp1exp2):
     10a  PLIs per trial
     10b  ELIs per trial
     11a  Temporal clustering score
+    11b  Temporal clustering score by recall half (Exp 1 20-1 | Exp 2)
     11d  Semantic clustering score
 
 Exp 1 values come from the saved between-subject-averaged dataframes in
@@ -497,3 +498,48 @@ def spc_window_welch(exp2_spc_df, exp1_spc, windows=SPC_WINDOWS, conds=COND_ORDE
     out = pd.DataFrame(rows)
     out["p_val_holm"] = holm(out["p_val"])
     return out
+
+
+# ---------------------------------------------------------------- Fig 11b: temporal clustering by recall half
+def plot_tcl_h_compare(exp2_tcl_h, exp1_tcl_h, path=None, figsize=(10, 3), ylim=(0.45, 1)):
+    """
+    Side-by-side temporal clustering score in each half of recall: Exp 1 (20-1) | Exp 2.
+
+    exp2_tcl_h: analyses.tcl.tcl_h(filtered_df) (session-level; averaged within participant here)
+    exp1_tcl_h: load_exp1('tcl_h_data_bsa.csv', ['tcl_h1', 'tcl_h2', 'tcl_delta'])
+    """
+    import seaborn as sns
+
+    cols = ["tcl_h1", "tcl_h2"]
+    exp2_p = exp2_tcl_h.groupby(["prolific_pid", "initiation_condition"], as_index=False)[cols].mean()
+    labels = {cond: label.replace("\n", " ") for cond, _e1, label in PAIRS}
+
+    fig, axes = plt.subplots(1, 2, figsize=figsize, sharey=True)
+    for ax, d, title in [(axes[0], exp1_tcl_h, EXP1_LABEL), (axes[1], exp2_p, EXP2_LABEL)]:
+        dfm = d.melt(id_vars=["prolific_pid", "initiation_condition"], value_vars=cols,
+                     var_name="half", value_name="tcl")
+        dfm["initiation_condition"] = dfm["initiation_condition"].map(labels)
+        sns.pointplot(dfm, x="half", y="tcl", order=cols, hue="initiation_condition",
+                      hue_order=[labels[c] for c in COND_ORDER],
+                      palette=[COND_PALETTE[c] for c in COND_ORDER],
+                      errorbar=("se", 1.96), dodge=0.3, alpha=0.85, ax=ax)
+        ax.get_legend().remove()
+        ax.set(title=title, xlabel="Position in Recall Sequence", ylabel="", ylim=ylim)
+        ax.set_xticks([0, 1], labels=["Half 1", "Half 2"])
+        ax.spines[["right", "top"]].set_visible(False)
+    axes[0].set_ylabel("Temporal Clustering Score")
+    handles, leg_labels = axes[1].get_legend_handles_labels()
+    fig.legend(handles, leg_labels, frameon=False, fontsize=8, ncols=len(PAIRS),
+               loc="lower center", bbox_to_anchor=(0.5, 1.0))
+    plt.tight_layout()
+    _savefig(path)
+    plt.show()
+
+    rows = []
+    for exp, d in [(EXP1_LABEL, exp1_tcl_h), (EXP2_LABEL, exp2_p)]:
+        for cond, _e1, label in PAIRS:
+            for col in cols:
+                m, ci, n = _mean_ci(d.loc[d["initiation_condition"] == cond, col])
+                rows.append({"experiment": exp, "pair": label.replace("\n", " "), "half": col,
+                             "mean": m, "ci95": ci, "n": n})
+    return pd.DataFrame(rows)
