@@ -114,7 +114,8 @@ def _hist_bins(data, value_col, bin_width, xlim):
 
 
 def _hist_ylabel(value_col):
-    return "Proportion of Trials"
+    # rt_initial rows are session means, rt rows are individual trials
+    return "Proportion of Sessions" if value_col == "rt_initial" else "Proportion of Trials"
 
 
 def _condition_means(rt_init_data):
@@ -132,10 +133,11 @@ def _plot_condition_hist(ax, data, value_col, bins):
         if len(cond_data) == 0:
             continue
 
+        # weight each trial by 1/n so bar heights are proportions of that group's trials
         ax.hist(
             cond_data[value_col],
             bins=bins,
-            density=True,
+            weights=np.full(len(cond_data), 1 / len(cond_data)),
             color=COND_PALETTE[cond],
             alpha=0.4,
             label=COND_LABELS[cond],
