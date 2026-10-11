@@ -201,3 +201,12 @@ def sensitivity_d(n1, n2, alpha=0.05, power=0.8):
         return stats.nct.sf(t_crit, df, nc) + lower_tail - power
 
     return optimize.brentq(achieved_power, 0.01, 2)
+
+
+def power_d(d, n1, n2, alpha=0.05):
+    """Power of a two-sided, two-sample t test to detect a true Cohen's d."""
+    df = n1 + n2 - 2
+    t_crit = stats.t.ppf(1 - alpha / 2, df)
+    nc = abs(d) * np.sqrt(n1 * n2 / (n1 + n2))
+    lower_tail = np.nan_to_num(stats.nct.cdf(-t_crit, df, nc))  # negligible; NaN for large nc
+    return stats.nct.sf(t_crit, df, nc) + lower_tail
