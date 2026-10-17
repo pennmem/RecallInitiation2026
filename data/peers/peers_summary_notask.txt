@@ -1,0 +1,28 @@
+PEERS ltpFR, younger adults, lists=notask, LL=16, subjects with >=20 correct-initiated lists: N=181
+lists per subject: median 50.0 range 20 - 52
+group counts: {'Recency': 140, 'Other': 36, 'Primacy': 5} proportions: {'Recency': 0.773, 'Other': 0.199, 'Primacy': 0.028}
+mean P(first recall in SP1-4) = 0.116 ; SP13-16 = 0.774
+
+MWR (prop recalled): Primacy M=0.764 SD=0.161 n=5; Other M=0.667 SD=0.150 n=36; Recency M=0.676 SD=0.141 n=140
+  one-way ANOVA F=1.01 p=0.3661
+  Primacy vs Other: t=1.27 p=0.2587 d=0.62
+  Primacy vs Recency: t=1.20 p=0.2919 d=0.58
+  Other vs Recency: t=-0.33 p=0.7408 d=-0.06
+
+R1 intrusion: Primacy M=0.000 SD=0.000 n=5; Other M=0.006 SD=0.014 n=36; Recency M=0.008 SD=0.013 n=140
+  one-way ANOVA F=1.19 p=0.3070
+  Primacy vs Other: t=-2.72 p=0.0101 d=-0.64
+  Primacy vs Recency: t=-7.49 p=0.0000 d=-0.90
+  Other vs Recency: t=-0.75 p=0.4573 d=-0.14
+
+intrusions/list: Primacy M=0.677 SD=0.852 n=5; Other M=0.496 SD=0.499 n=36; Recency M=0.631 SD=0.749 n=140
+  one-way ANOVA F=0.54 p=0.5833
+  Primacy vs Other: t=0.46 p=0.6645 d=0.26
+  Primacy vs Recency: t=0.12 p=0.9094 d=0.06
+  Other vs Recency: t=-1.29 p=0.2022 d=-0.21
+
+temporal factor: Primacy M=0.799 SD=0.089 n=5; Other M=0.724 SD=0.065 n=36; Recency M=0.700 SD=0.064 n=140
+  one-way ANOVA F=7.23 p=0.0010
+  Primacy vs Other: t=1.82 p=0.1337 d=0.96
+  Primacy vs Recency: t=2.48 p=0.0663 d=1.28
+  Other vs Recency: t=2.02 p=0.0487 d=0.38

@@ -1,0 +1,12 @@
+PEERS ltpFR Experiments 1 and 3, younger adults, no-task lists, LL=16: 192 participants, 6059 lists
+first recall: {'rec': 0.767, 'prim': 0.117, 'mid': 0.11, 'intr': 0.006}
+Experiment 1 grouping rule (>= 2/3 of correctly initiated lists): {'Recency': 142, 'Other': 44, 'Primacy': 6}
+participants with >= 5 primacy-initiated and >= 5 recency-initiated lists: 43
+
+first-recall RT (ms)     primacy  1971.129 | recency  1335.547 | t(42) =   4.06, p = 0.00021, dz = 0.62
+words recalled           primacy    11.596 | recency    10.805 | t(42) =   2.65, p = 0.011, dz = 0.40
+later intrusions/list    primacy     0.262 | recency     0.261 | t(42) =   0.03, p = 0.98, dz = 0.00
+temporal factor          primacy     0.712 | recency     0.685 | t(42) =   2.00, p = 0.052, dz = 0.31
+lag +1 CRP               primacy     0.463 | recency     0.440 | t(42) =   1.02, p = 0.31, dz = 0.16
+lag -1 CRP               primacy     0.222 | recency     0.242 | t(42) =  -1.10, p = 0.28, dz = -0.17
+forward asymmetry        primacy     0.240 | recency     0.198 | t(42) =   1.39, p = 0.17, dz = 0.21
