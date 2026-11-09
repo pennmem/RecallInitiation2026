@@ -274,8 +274,16 @@ def irt_final_plot(data, n_final=4, path=None, figsize=(5, 3)):
     plt.show()
 
 
-def irt_first_plot(data, n_first=4, path=None, figsize=(5, 3)):
+def irt_first_plot(data, n_first=4, path=None, figsize=(5, 3), min_prop=None):
     data = _participant_mean(data, "irt", "output_position")
+    if min_prop is not None:
+        # keep output positions where >= min_prop of each condition's participants contribute
+        n_total = data.groupby("initiation_condition").prolific_pid.nunique()
+        n_pos = data.groupby(["initiation_condition", "output_position"]).prolific_pid.nunique()
+        prop = n_pos.div(n_total, level="initiation_condition").unstack(0).fillna(0)
+        ok = (prop >= min_prop).all(axis=1)
+        n_first = int(ok.index[~ok].min() - 1) if (~ok).any() else int(ok.index.max())
+        data = data[data.output_position <= n_first]
     plt.figure(figsize=figsize)
     ax = sns.lineplot(
         data=data,

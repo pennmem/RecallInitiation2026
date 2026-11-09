@@ -75,8 +75,9 @@ def pfr_plot(data, path=None, figsize=(5, 3)):
     plt.xlabel("Serial Position")
     plt.ylabel("Probability of First Recall")
     plt.xlim(0, max_pos + 1)
-    plt.ylim(0, 1)
-    plt.xticks(np.arange(1, max_pos + 1, 1))
+    plt.ylim(-0.05, 1)
+    plt.yticks(np.arange(0, 1.01, 0.2))
+    plt.xticks(np.arange(5, max_pos + 1, 5))
     plt.legend(title="", shadow=True, loc="upper right")
     sns.despine()
 
