@@ -159,12 +159,19 @@ def load_murdock_spc(murd_dir="data/murdock1962", list_length=20, pres_rate=1):
 
 
 # ---------------------------------------------------------------- Fig 7a
-def plot_spc_overall_compare(exp2_spc_df, exp1_spc=None, murdock=None, path=None, figsize=(5, 3)):
+def plot_spc_overall_compare(exp2_spc_df, exp1_spc=None, murdock=None, path=None, figsize=(5, 3),
+                             condition=None):
     """
     exp2_spc_df: output of analyses.spc.spc_df (session-level rows).
     exp1_spc:    per-subject DataFrame of sp_1..sp_20 (load_exp1_spc()).
     murdock:     Series indexed by serial position (load_murdock_spc()), optional.
+    condition:   plot only this Exp 2 initiation condition (e.g. "free", the only condition
+                 without initiation instructions, like Murdock and Exp 1); None pools all.
     """
+    exp2_label = EXP2_LABEL
+    if condition is not None:
+        exp2_spc_df = exp2_spc_df[exp2_spc_df["initiation_condition"] == condition]
+        exp2_label = f"{EXP2_LABEL} {condition.capitalize()}"
     sp_cols = [c for c in exp2_spc_df.columns if c.startswith("sp_")]
     exp2 = exp2_spc_df.groupby("prolific_pid")[sp_cols].mean()   # one curve per participant
     x = np.arange(1, len(sp_cols) + 1)
@@ -179,7 +186,7 @@ def plot_spc_overall_compare(exp2_spc_df, exp1_spc=None, murdock=None, path=None
                               label="Murdock (1962) 20-1"))
 
     for data, color, label, z in [(exp1_spc, _lighten("blue", 0.45), EXP1_LABEL, 1),
-                                  (exp2, "blue", EXP2_LABEL, 2)]:
+                                  (exp2, "blue", exp2_label, 2)]:
         if data is None:
             continue
         m = data.mean().to_numpy()
