@@ -1,0 +1,7 @@
+# PyBeh currently converts single-element arrays to scalars (removed in NumPy 2.4).
+numpy<2.4
+pandas
+scipy
+matplotlib
+seaborn>=0.13
+pybeh @ git+https://github.com/pennmem/pybeh.git@92483d388d912810568e4d0b61dcc7209359e3d1

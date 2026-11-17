@@ -244,6 +244,47 @@ def plot_paired_bars(exp2_df, exp1_df, y, ylabel, exp1_y=None, ylim=None, dots=F
     return summarize_pair(exp2_p, exp1_p, y, exp1_y)
 
 
+def plot_conditions_with_exp1(exp2_df, exp1_df, y, ylabel, exp1_y=None, err="ci", ylim=None,
+                              dots=False, path=None, figsize=(5, 3)):
+    """
+    Exp 2 Start and End alone, then the two uninstructed groups side by side:
+    Exp 2 Free and all Exp 1 (20-1) participants pooled across initiation groups.
+
+    exp2_df: Exp 2 session-level df with prolific_pid, initiation_condition, y.
+    exp1_df: Exp 1 participant-level df, column exp1_y (default y).
+    err:     "ci" (95% CI) or "sd" (standard deviation).
+    """
+    exp1_y = exp1_y or y
+    exp2_p = exp2_df.groupby(["prolific_pid", "initiation_condition"], as_index=False)[y].mean()
+    groups = [("Start", exp2_p.loc[exp2_p["initiation_condition"] == "start", y], COND_PALETTE["start"], EXP2_ALPHA),
+              ("End", exp2_p.loc[exp2_p["initiation_condition"] == "end", y], COND_PALETTE["end"], EXP2_ALPHA),
+              ("Free", exp2_p.loc[exp2_p["initiation_condition"] == "free", y], COND_PALETTE["free"], EXP2_ALPHA),
+              (f"{EXP1_LABEL}", exp1_df[exp1_y], COND_PALETTE["free"], EXP1_ALPHA)]
+    xs = [0, 1, 2.3, 3.3]   # gap separates the instructed conditions from the uninstructed pair
+
+    fig, ax = plt.subplots(figsize=figsize)
+    rng = np.random.default_rng(0)
+    rows = []
+    for x, (label, vals, color, alpha) in zip(xs, groups):
+        vals = pd.Series(vals).dropna()
+        m, ci, n = _mean_ci(vals)
+        e = vals.std(ddof=1) if err == "sd" else ci
+        ax.bar(x, m, width=0.8, color=_lighten(color, alpha), edgecolor=_lighten(color, min(1, alpha + 0.3)), lw=0.8)
+        ax.errorbar(x, m, yerr=e, color="0.25", lw=1.2, capsize=0)
+        if dots:
+            ax.scatter(x + rng.uniform(-0.2, 0.2, len(vals)), vals, s=6,
+                       color=_lighten(color, min(1, alpha + 0.2)), alpha=0.8, lw=0, zorder=3)
+        rows.append({"measure": y, "group": label, "mean": m, err: e, "n": n})
+    ax.axvline(1.65, color="0.6", ls="dotted", lw=1)
+    ax.set_xticks(xs, labels=["Start", "End", "Free", EXP1_LABEL.replace(" (", "\n(")])
+    ax.set(xlabel="", ylabel=ylabel)
+    ax.set_ylim(*(ylim if ylim is not None else (0, None)))
+    ax.spines[["right", "top"]].set_visible(False)
+    _savefig(path)
+    plt.show()
+    return pd.DataFrame(rows)
+
+
 def _exp_legend_handles():
     return [Patch(facecolor=_lighten("0.35", EXP1_ALPHA), edgecolor="0.6", label=EXP1_LABEL),
             Patch(facecolor=_lighten("0.35", EXP2_ALPHA), edgecolor="0.4", label=EXP2_LABEL)]

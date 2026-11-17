@@ -127,6 +127,31 @@ def eli_plot_by_session(data, path=None, figsize=(5, 3)):
     _plot_by_session(data, "eli", "ELIs per Trial", path=path, figsize=figsize)
 
 
+def total_intrusions(df, toggle=True, subtract=4):
+    """PLIs + ELIs per list, both counted on the same lists: lists from `subtract` on
+    (where PLIs are possible), initiated with a correct recall when toggle=True."""
+    rows = []
+    for (pid, sess), data in df.groupby(['prolific_pid', 'session']):
+        cond = data['initiation_condition'].dropna().iloc[0]
+        rec_evs = data[(data['type'] == 'REC_WORD') & (data['serial_position'] != 99)]
+        n_lists = 0; n_intr = 0
+        for i in data.list.dropna().unique():
+            if i < subtract:
+                continue
+            sp = mark_repetitions(rec_evs.loc[rec_evs['list'] == i, 'serial_position'].to_numpy())
+            if toggle and (len(sp) == 0 or sp[0] == 88):
+                continue
+            n_lists += 1
+            n_intr += int(np.sum(sp == 88))
+        rows.append({"prolific_pid": pid, "session": sess, "initiation_condition": cond,
+                     "intrusions": n_intr / n_lists if n_lists else np.nan})
+    return pd.DataFrame(rows)
+
+
+def total_plot_overall(data, path=None, figsize=(5, 3)):
+    _plot_overall(data, "intrusions", "Intrusions per Trial", path=path, figsize=figsize)
+
+
 def _plot_overall(data, y, ylabel, path=None, figsize=(5, 3)):
     # average across sessions so each bar/dot reflects one point per participant
     participant_df = data.groupby(

@@ -185,7 +185,9 @@ def plot_tcl(tcl_data, path=None):
     _, ax = plt.subplots(figsize=(5,3))
     sns.barplot(tcl_data_bsa, x='initiation_condition', y='tcl', hue="initiation_condition", 
                 hue_order=['start', 'end', 'free'], order=['start', 'end', 'free'], palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], errorbar=('se', 1.96), alpha=0.7, gap=0.1, legend=False)
-    ax.set(xlabel='Condition', ylabel='Temporal Clustering Score', ylim=(0.45, 1))
+    ax.set(xlabel='Initiation Condition', ylabel='Temporal Clustering Score', ylim=(0.45, 1))
+    ax.set_xticks([0, 1, 2], labels=['Start', 'End', 'Free'])
+    ax.axhline(0.5, color='black', linestyle='dotted', linewidth=1)  # chance
     ax.spines[['right', 'top']].set_visible(False)
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)

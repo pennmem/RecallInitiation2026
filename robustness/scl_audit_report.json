@@ -1,0 +1,83 @@
+{
+  "participants": 125,
+  "sessions": 455,
+  "counts": {
+    "lists": 5460,
+    "presented_words_missing_from_pool": 0,
+    "valid_recall_rows": 44949,
+    "eligible_transitions": 34142,
+    "recall_word_serial_position_mismatches": 0,
+    "presented_words_marked_invalid": 0
+  },
+  "list_lengths": {
+    "20": 5460
+  },
+  "mismatch_examples": [],
+  "maximum_session_difference_current_vs_independent": 2.220446049250313e-16,
+  "maximum_session_difference_pooled_pybeh_vs_independent": 4.440892098500626e-16,
+  "maximum_session_difference_current_vs_notebook": 0.0,
+  "condition_means_after_averaging_sessions_per_participant": {
+    "current_pybeh_equal_lists": {
+      "end": 0.5235372850342116,
+      "free": 0.524321518903613,
+      "start": 0.5172297859367023
+    },
+    "independent_equal_lists": {
+      "end": 0.5235372850342116,
+      "free": 0.524321518903613,
+      "start": 0.5172297859367023
+    },
+    "direct_pybeh_pooled_transitions": {
+      "end": 0.5246580892044472,
+      "free": 0.526311186635063,
+      "start": 0.5173254841294261
+    },
+    "independent_pooled_transitions": {
+      "end": 0.5246580892044472,
+      "free": 0.526311186635063,
+      "start": 0.5173254841294261
+    },
+    "original_custom_code": {
+      "end": 0.526911956138388,
+      "free": 0.5300960487411499,
+      "start": 0.5189050062034001
+    }
+  },
+  "wordpool_size": 554,
+  "unique_wordpool_size": 554,
+  "matrix_shape": [
+    554,
+    554
+  ],
+  "matrix_maximum_asymmetry": 0.0,
+  "semantic_neighbors": {
+    "ACTOR": [
+      "ACTRESS",
+      "FILM",
+      "STAR"
+    ],
+    "APPLE": [
+      "FRUIT",
+      "PEACH",
+      "GRAPE"
+    ]
+  },
+  "recall_order_checks": {
+    "recall_position": {
+      "rows_with_values": 58141,
+      "decreases_within_lists": 0
+    },
+    "trial_index": {
+      "rows_with_values": 58141,
+      "decreases_within_lists": 0
+    },
+    "time_elapsed": {
+      "rows_with_values": 58141,
+      "decreases_within_lists": 0
+    },
+    "row_id": {
+      "rows_with_values": 58141,
+      "decreases_within_lists": 0
+    }
+  }
+}

@@ -331,3 +331,106 @@ def irt_tot_plot(data, path=None, figsize=(5, 3)):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(path, bbox_inches="tight")
     plt.show()
+
+
+
+# IRTs partitioned on total correct recalls (Murdock & Okada, 1970; Greene et al., 2026)
+def irt_total_recall_sess(data):
+    """IRTs between consecutive correct recalls, by transition and total correct recalls on the list.
+    Lists with any IRT above 30 s are excluded, as in irt_tot_sess."""
+    rows = []
+    rec_evs = data[data["type"] == "REC_WORD"]
+    for i in data.list.dropna().unique():
+        sp, rt = _list_recall_arrays(rec_evs, i)
+        if len(sp) < 2 or np.all(pd.isna(rt)) or np.nanmax(rt) > 30000:
+            continue
+        correct = (sp != 88) & (sp != 77)
+        n_correct = int(correct.sum())
+        k = 0
+        for j in range(len(sp) - 1):
+            if correct[j]:
+                k += 1
+            if correct[j] and correct[j + 1]:
+                rows.append({"total_recall": n_correct, "transition": k, "irt": rt[j + 1]})
+    return pd.DataFrame(rows, columns=["total_recall", "transition", "irt"])
+
+
+def irt_total_recall_df(df):
+    out = []
+    for (pid, sess), data in df.groupby(["prolific_pid", "session"]):
+        d = irt_total_recall_sess(data)
+        d["prolific_pid"] = pid
+        d["session"] = sess
+        d["initiation_condition"] = _session_condition(data)
+        out.append(d)
+    return pd.concat(out, ignore_index=True)
+
+
+def irt_total_recall_plot(data, totals=(5, 7, 9, 11, 13), path=None, figsize=(12, 3.5)):
+    """One panel per condition; one curve per total number of correct recalls."""
+    p = data[data["total_recall"].isin(totals)].groupby(
+        ["prolific_pid", "initiation_condition", "total_recall", "transition"], as_index=False)["irt"].mean()
+    markers = ["o", "s", "^", "D", "v", "P", "X"]
+    styles = ["-", "--", "-.", ":", "-", "--", "-."]
+    fig, axes = plt.subplots(1, len(COND_ORDER), figsize=figsize, sharey=True)
+    for ax, cond in zip(axes, COND_ORDER):
+        for n, m, ls in zip(totals, markers, styles):
+            g = p[(p["initiation_condition"] == cond) & (p["total_recall"] == n)].groupby("transition")["irt"]
+            mean = g.mean() / 1000
+            ci = 1.96 * g.std(ddof=1) / np.sqrt(g.count()) / 1000
+            ax.errorbar(mean.index, mean, yerr=ci, color=COND_PALETTE[cond], marker=m, ms=4, ls=ls, lw=1.2, label=str(n))
+        ax.set_title(COND_LABELS[cond])
+        ticks = range(1, max(totals), 2)
+        ax.set_xticks(list(ticks), labels=[f"{k}-{k + 1}" for k in ticks], rotation=45)
+        ax.set_xlabel("Output Position")
+        ax.spines[["right", "top"]].set_visible(False)
+    axes[0].set_ylabel("Inter-Response Time (s)")
+    from matplotlib.lines import Line2D
+    handles = [Line2D([], [], color="0.2", marker=m, ms=4, ls=ls, lw=1.2, label=str(n))
+               for n, m, ls in zip(totals, markers, styles)]
+    axes[-1].legend(handles=handles, title="Total Recall", frameon=False, fontsize=8, title_fontsize=8,
+                    loc="upper left", bbox_to_anchor=(1.0, 1.0))
+    plt.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(path, bbox_inches="tight")
+    plt.show()
+
+
+
+def irt_total_recall_by_total_plot(data, totals=(5, 7, 9, 11, 13, 15), ncols=3, top_ylim=(1, 10), path=None,
+                                   figsize=(11, 6)):
+    """One panel per total number of correct recalls; one curve per condition.
+    Rows share a y-axis; top_ylim sets the first row's limits."""
+    p = data[data["total_recall"].isin(totals)].groupby(
+        ["prolific_pid", "initiation_condition", "total_recall", "transition"], as_index=False)["irt"].mean()
+    offsets = {"start": -0.12, "end": 0.0, "free": 0.12}
+    nrows = int(np.ceil(len(totals) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=figsize, sharey="row", squeeze=False)
+    if top_ylim is not None:
+        axes[0, 0].set_ylim(*top_ylim)
+    axes = axes.flatten()
+    for ax in axes[len(totals):]:
+        ax.set_visible(False)
+    for ax, n in zip(axes, totals):
+        for cond in COND_ORDER:
+            g = p[(p["initiation_condition"] == cond) & (p["total_recall"] == n)].groupby("transition")["irt"]
+            mean = g.mean() / 1000
+            ci = 1.96 * g.std(ddof=1) / np.sqrt(g.count()) / 1000
+            ax.errorbar(mean.index + offsets[cond], mean, yerr=ci, color=COND_PALETTE[cond], marker="o", ms=3,
+                        lw=1.2, label=COND_LABELS[cond])
+        ax.set_title(f"Total Recall = {n}", fontsize=10)
+        ax.set_gid(f"total_recall_{n}")   # one named group per panel in the SVG
+        ticks = range(1, n, 2)
+        ax.set_xticks(list(ticks), labels=[f"{k}-{k + 1}" for k in ticks], rotation=45)
+        ax.spines[["right", "top"]].set_visible(False)
+    for r in range(nrows):
+        axes[r * ncols].set_ylabel("Inter-Response Time (s)")
+    axes[ncols - 1].legend(frameon=False, fontsize=8, loc="upper left")
+    fig.supxlabel("Output Position", fontsize=10)
+    plt.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(path, bbox_inches="tight")
+        plt.savefig(Path(path).with_suffix(".svg"), bbox_inches="tight")   # grouped by panel, for Affinity
+    plt.show()

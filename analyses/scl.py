@@ -5,93 +5,72 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
+from pybeh.dist_fact import dist_fact
 
 COND_LABELS = {"start": "Start", "end": "End", "free": "Free"}
 COND_PALETTE = {"start": "orange", "end": "purple", "free": "darkgray"}
 
-# change repetitions serial position to 77
-def mark_repetitions(sp):
-    sp = np.array(sp, copy=True)
-    used = []
-    for u in range(len(sp)):
-        count = 0
-        if sp[u] != 88 and sp[u] != 77:
-            used.append(sp[u])
-        for v in range(len(used)):
-            if sp[u] == used[v]:
-                count += 1
-        if count > 1:
-            sp[u] = 77
-        else:
-            sp[u] = sp[u]
-        
-    return sp
-
-# semantic clustering score
-# semantic percentile rank
-def percentile_rank_S(actual, possible):
-    if len(possible) < 2:
-        return None
-
-    # sort possible transitions from lowest to highest similarity
-    possible.sort()
-
-    # get indices of possible transitions with same similarity as actual transition
-    matches = np.where(possible == actual)[0]
-    if len(matches) > 0:
-        # get number of possible transition that were less similar than the actual transition
-        rank = np.mean(matches)
-        # convert rank to proportion of possible transitions that were less similar than the actual transition
-        ptile_rank = rank / (len(possible) - 1.0)
-    else:
-        ptile_rank = None
-
-    return ptile_rank
-
-# semantic clustering score single session
 def scl_sess(data, wordpool, w2v_scores):
-    scl = []                 # semantic clustering scores for eacl list
-    word_evs = data[data['type'] == 'WORD']; rec_evs = data[data['type'] == 'REC_WORD']
-    
-    for i in data.list.unique():
-        sp = rec_evs[rec_evs['list'] == i].serial_position.to_numpy()         # current list serial positions
-        sp = sp[sp != 99]                                                     # remove last null recall
-        w = word_evs[word_evs['list'] == i].word.tolist()                     # current list words
-        r = rec_evs[rec_evs['list'] == i].rec_word.tolist()                   # current list recalls
-        r = r[:len(sp)]                                                       # remove last null recall
+    """Average PyBeh semantic clustering scores equally across scored lists.
 
-        sp = mark_repetitions(sp)                     # repetitions = serial position 77
-        words_left = [x.upper() for x in w]           # array with remaining words, subtract from
-        scl_list = []                                 # semantic clustering scores for each recall
-        for j in range(len(sp) - 1):
-            if sp[j] != 88 and sp[j] != 77:
-                curr_word = w[int(sp[j]) - 1].upper()
-                words_left.remove(curr_word)
+    PyBeh receives 1-based wordpool IDs and the word2vec similarity matrix.
+    Recall order is preserved: intrusions and repetitions interrupt transitions.
+    Lists without eligible transitions are excluded; an unscorable session is NaN.
+    """
+    word_to_itemno = {str(word).upper(): i + 1 for i, word in enumerate(wordpool)}
+    similarities = np.asarray(w2v_scores)
+    if similarities.shape != (len(wordpool), len(wordpool)):
+        raise ValueError("w2v_scores must be square and aligned with wordpool.")
 
-                if sp[j+1] != 88 and sp[j+1] != 77:
-                    next_word = w[int(sp[j+1]) - 1].upper()
+    word_evs = data[data['type'] == 'WORD']
+    rec_evs = data[data['type'] == 'REC_WORD']
+    trials_by_length = {}
+    for list_num, presented in word_evs.groupby('list', sort=False):
+        presented = presented.sort_values('serial_position')
+        if not np.array_equal(presented.serial_position.to_numpy(), np.arange(1, len(presented) + 1)):
+            raise ValueError(f"Presentation serial positions must run from 1 to list length on list {list_num}.")
+        try:
+            pres_itemnos = [word_to_itemno[word.upper()] for word in presented.word]
+        except KeyError as exc:
+            raise ValueError(f"Presented word {exc.args[0]!r} is missing from wordpool.") from exc
 
-                    if curr_word in wordpool and next_word in wordpool:
-                        possList = []
-                        wv1 = wordpool.index(curr_word)
-                        wv2 = wordpool.index(next_word)
-                        ss = w2v_scores[wv1][wv2]
+        rec_itemnos = []
+        for sp in rec_evs.loc[rec_evs['list'] == list_num, 'serial_position']:
+            if pd.isna(sp):
+                raise ValueError(f"Missing recall serial position on list {list_num}.")
+            if sp == 99:  # null recall
+                continue
+            if sp in (77, 88):  # premarked repetition or intrusion; keep the interruption
+                rec_itemnos.append(-1)
+            elif 1 <= sp <= len(pres_itemnos) and sp == int(sp):
+                # Repeated serial positions map to the same ID; PyBeh detects repetitions.
+                rec_itemnos.append(pres_itemnos[int(sp) - 1])
+            else:
+                raise ValueError(f"Invalid recall serial position {sp!r} on list {list_num}.")
 
-                        for l in range(len(words_left)):
-                            wv3 = wordpool.index(words_left[l].upper())
-                            poss_ss = w2v_scores[wv1][wv3]
-                            possList.append(poss_ss)
+        if len(rec_itemnos) >= 2:
+            trials_by_length.setdefault(len(pres_itemnos), []).append((pres_itemnos, rec_itemnos))
 
-                            ptile_rank = percentile_rank_S(ss, possList)
-                            if ptile_rank is not None:
-                                scl_list.append(ptile_rank)
-                                
-        # take avearge of scores on list   ### weight each list or each transition equally?
-        if len(scl_list) > 0:
-            scl.append(np.mean(scl_list))
-            
-    # return average of list scores
-    return np.mean(scl)
+    list_scores = []
+    # Batch lists with equal presentation lengths so only recall rows need padding.
+    # Padding presentations would introduce nonexistent alternative words in PyBeh.
+    for trials in trials_by_length.values():
+        pres_itemnos = np.array([pres for pres, _ in trials], dtype=int)
+        rec_itemnos = np.zeros((len(trials), max(len(rec) for _, rec in trials)), dtype=int)
+        for row, (_, recalls) in enumerate(trials):
+            rec_itemnos[row, :len(recalls)] = recalls
+
+        scores = dist_fact(
+            rec_itemnos=rec_itemnos,
+            pres_itemnos=pres_itemnos,
+            subjects=np.arange(len(trials)),  # one score per list, preserving equal list weights
+            dist_mat=similarities,
+            is_similarity=True,
+            skip_first_n=0,
+        )
+        list_scores.extend(scores[~np.isnan(scores)])
+
+    return np.mean(list_scores) if list_scores else np.nan
 
 def scl(df, wordpool, w2v_scores):
     scl_data = []
@@ -115,6 +94,7 @@ def plot_scl(scl_data, path=None):
                 palette=[COND_PALETTE["start"], COND_PALETTE["end"], COND_PALETTE["free"]], alpha=0.7, errorbar=('se', 1.96), gap=0.1, legend=False)
     ax.set(xlabel="Initiation Condition", ylabel="Semantic Clustering Score", ylim=(0.4,0.6))
     ax.set_xticks([0,1,2], labels=["Start", "End", "Free"])
+    ax.axhline(0.5, color="black", linestyle="dotted", linewidth=1)  # chance
     ax.spines[["right", "top"]].set_visible(False)
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
